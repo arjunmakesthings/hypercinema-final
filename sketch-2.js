@@ -11,11 +11,14 @@ function setup() {
 
   pixelDensity(1);
   noStroke();
+
+  colorMode (HSB); 
 }
 function make_canvas(){
   createCanvas(cam.width, cam.height); 
 }
 
+let pos = { x: 0, y: 0 };
 
 function draw() {
   background(0);
@@ -24,47 +27,22 @@ function draw() {
 
   detect();
 
-  tint(255,50); 
   image(cam, 0, 0);
+  
+  rect(pos.x, pos.y, 20, 20); 
 
-   updatePixels();
 }
 
-let max_r = 0;
-let max_r_index = 0;
-
-let max_g = 0;
-let max_g_index = 0; 
+let brightness_to_detect = 100;
+let noise = 10;
 
 function detect() {
-  //every frame, find the location of the highest colour values.
+  //we pre-define a value. if there is an object with that value, draw a box there.
 
-  max_r = 0;
-  max_r_index = 0;
-  max_g = 0;
-  max_g_index = 0;
-  
-  for (let i = 0; i < cam.pixels.length; i += 4) {
-    let r = cam.pixels[i]; 
-    let g = cam.pixels[i+1]; 
-
-    if (r>max_r){
-      max_r = r; 
-      max_r_index = i; 
-    }
-
-    if (g > max_g) {
-      max_g = g;
-      max_g_index = i;
-    }
-  }
-
-  //draw rectangle wherever that is. 
-  let pos = get_coordinates(max_r_index); 
-
-  rect (pos.x, pos.y, 50,50); 
-
-  console.log(max_r, max_g);
+  let n = get_pixel_index(mouseX, mouseY); 
+  let c = color(cam.pixels[n], cam.pixels[n + 1], cam.pixels[n + 2]);
+  let bright_val = brightness(c);
+  console.log(bright_val); 
 }
 
 //helper to convert from pixels array to x, y.
