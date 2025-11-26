@@ -1,6 +1,12 @@
 //video manipulation trial 1; november, 2025.
 
+let cw = 1280;
+let ch = 720;
+
 let vid1, vid2;
+
+let alph1 = 0; 
+let alph2 = 0; 
 
 function preload() {
   //load all media before sketch starts.
@@ -12,7 +18,7 @@ function preload() {
 }
 
 function setup() {
-  createCanvas(1280, 720);
+  createCanvas(cw, ch);
 }
 
 function draw() {
@@ -21,9 +27,17 @@ function draw() {
   vid1.loop(); //by default it loops.
   vid2.loop(); //by default it loops.
 
-  push(); 
-//   tint(0,0,0,mouseX); 
-//   image(vid1, 0, 0); 
+  push();
+  tint (255, alph1); 
+  image(vid1, 0, 0, width, height, 0, 0, vid1.width, vid1.height, COVER);
   pop();
-  image(vid2, 0, 0);
+
+  push();
+  tint(255, alph2); 
+  image(vid2, 0, 0, width, height, 0, 0, vid2.width, vid2.height, COVER);
+  pop();
+
+  alph1 = map(mouseX, 0, width, 0, 255); 
+  alph2 = map(mouseX, 0, width, 255, 0); 
+  
 }
