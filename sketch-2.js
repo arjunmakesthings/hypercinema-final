@@ -9,7 +9,13 @@ let col_to_detect = {
 
 let threshold = 20; //threshold for colour detection to account for lighting.
 
+let dist_between_units = 500;
+
 let units = [];
+
+let has_clicked = false;
+
+let memories = []; 
 
 function setup() {
   cam = createCapture(VIDEO, { flipped: true }, make_canvas);
@@ -28,7 +34,9 @@ function draw() {
 
   cam.loadPixels();
 
+  if (has_clicked==true){
   detect();
+}
 
   tint(255, 100);
   image(cam, 0, 0);
@@ -57,28 +65,42 @@ function detect() {
       let dg = abs(pg - col_to_detect.g);
       let db = abs(pb - col_to_detect.b);
 
+      let desired = false;
+
       if (dr < threshold && dg < threshold && db < threshold) {
         //this means that this point is roughly the same colour.
-        avg_x += x;
-        avg_y += y;
-        count++;
+        desired = true;
+      }
+
+      if (desired) {
+        //check if another unit already has this in the past:
+
+        if (units.length < 1) {
+          //no units have been created, make a unit.
+          units.push(new Unit(x, y));
+        }
+
+        for (let i = 0; i < units.length; i++) {
+          let d = dist(x, y, units[i].x, units[i].y);
+
+          if (d > dist_between_units) {
+            //it's a new unit.
+            units.push(new Unit(x, y));
+            break; 
+          } else {
+            //it's an old unit.
+            units[i].update(x, y);
+            break; 
+          }
+        }
       }
     }
-  }
-
-  //when counting for all pixels is done, draw a point at the average location.
-  strokeWeight(1);
-  stroke(255);
-
-  if (count > 0) {
-    let x = avg_x / count;
-    let y = avg_y / count;
-
-    units.push(new Unit(x, y));
   }
 }
 
 function mousePressed() {
+  has_clicked = true;
+
   cam.loadPixels();
   let n = get_pixel_index(mouseX, mouseY);
 
@@ -114,6 +136,12 @@ class Unit {
   }
 
   display() {
+    fill(255);
     rect(this.x, this.y, this.w, this.h);
+  }
+
+  update(x, y) {
+    this.x = x;
+    this.y = y;
   }
 }
