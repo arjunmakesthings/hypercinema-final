@@ -13,9 +13,20 @@ let dist_between_units = 500;
 
 let units = [];
 
-let has_clicked = false;
+let has_clicked = false; //to account for first time values being black (and messing up the program).
 
-let memories = []; 
+let my_memories = [];
+let dad_memories = [];
+
+function preload() {
+  my_memories[0] = createVideo("./assets/media/my-memories/0.mp4");
+  dad_memories[0] = createVideo("./assets/media/dad-memories/0.mp4");
+
+  for (let i = 0; i < my_memories.length; i++) {
+    my_memories[i].hide();
+    dad_memories[i].hide();
+  }
+}
 
 function setup() {
   cam = createCapture(VIDEO, { flipped: true }, make_canvas);
@@ -25,6 +36,7 @@ function setup() {
 
   noStroke();
 }
+
 function make_canvas() {
   createCanvas(cam.width, cam.height);
 }
@@ -34,9 +46,9 @@ function draw() {
 
   cam.loadPixels();
 
-  if (has_clicked==true){
-  detect();
-}
+  if (has_clicked == true) {
+    detect();
+  }
 
   tint(255, 100);
   image(cam, 0, 0);
@@ -77,7 +89,7 @@ function detect() {
 
         if (units.length < 1) {
           //no units have been created, make a unit.
-          units.push(new Unit(x, y));
+          units.push(new Unit(x, y, my_memories[0]));
         }
 
         for (let i = 0; i < units.length; i++) {
@@ -85,12 +97,12 @@ function detect() {
 
           if (d > dist_between_units) {
             //it's a new unit.
-            units.push(new Unit(x, y));
-            break; 
+            units.push(new Unit(x, y, my_memories[0]));
+            break;
           } else {
             //it's an old unit.
             units[i].update(x, y);
-            break; 
+            break;
           }
         }
       }
@@ -126,18 +138,22 @@ function get_coordinates(n) {
 }
 
 class Unit {
-  constructor(x, y) {
+  constructor(x, y, file) {
     this.x = x;
     this.y = y;
-    this.w = 10;
-    this.h = 10;
+    this.w = 50;
+    this.h = 50;
 
-    this.file = 0; //placeholder to store video file later.
+    this.file = file; //placeholder to store video file later.
+
+    this.file.loop(); //always loop.
   }
 
   display() {
-    fill(255);
-    rect(this.x, this.y, this.w, this.h);
+    // fill(255);
+    // rect(this.x, this.y, this.w, this.h);
+
+    image (this.file, this.x, this.y, this.w, this.h); 
   }
 
   update(x, y) {
