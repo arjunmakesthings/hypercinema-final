@@ -33,6 +33,10 @@ function draw() {
 }
 
 function detect() {
+  let avg_x = 0;
+  let avg_y = 0;
+  let count = 0;
+
   for (let x = 0; x < cam.width; x++) {
     for (let y = 0; y < cam.height; y++) {
       let n = (y * cam.width + x) * 4;
@@ -47,17 +51,29 @@ function detect() {
       let dg = abs(pg - col_to_detect.g);
       let db = abs(pb - col_to_detect.b);
 
-      strokeWeight(1);
-      stroke(255);
-
       if (dr < threshold && dg < threshold && db < threshold) {
-        point(x, y);
+        //this means that this point is roughly the same colour.
+        avg_x += x;
+        avg_y += y;
+        count++;
       }
     }
+  }
+
+  //when counting for all pixels is done, draw a point at the average location.
+  strokeWeight(1);
+  stroke(255);
+
+  if (count > 0) {
+    let x = avg_x / count;
+    let y = avg_y / count;
+
+    point(x, y);
   }
 }
 
 function mousePressed() {
+  cam.loadPixels();
   let n = get_pixel_index(mouseX, mouseY);
 
   col_to_detect.r = cam.pixels[n];
