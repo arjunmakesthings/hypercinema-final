@@ -1,11 +1,22 @@
 //blob detection; november, 2025.
 
 let cam;
+let col_to_detect = {
+  r: 0,
+  g: 0,
+  b: 0,
+};
+
+let threshold = 20; //threshold for colour detection to account for lighting.
+
+let dist_between_units = 500;
+
+let units = [];
+
+let has_clicked = false; //to account for first time values being black (and messing up the program).
 
 let my_memories = [];
 let dad_memories = [];
-
-let units = []; //keep track of how many units are on the area.
 
 function preload() {
   my_memories[0] = createVideo("./assets/media/my-memories/0.mp4");
@@ -25,6 +36,7 @@ function setup() {
 
   noStroke();
 }
+
 function make_canvas() {
   createCanvas(cam.width, cam.height);
 }
@@ -34,55 +46,88 @@ function draw() {
 
   cam.loadPixels();
 
-  detect();
+  if (has_clicked == true) {
+    detect();
+  }
 
-  tint(255, 20);
+  tint(255, 100);
   image(cam, 0, 0);
 
-  // updatePixels();
-
   for (let unit of units) {
-    unit.show();
+    unit.display();
   }
 }
 
-let threshold = 170;
-let noisy = 50;
-
-let dis = 100;
-
 function detect() {
-  for (let i = 0; i < cam.pixels.length; i += 4) {
-    let r = cam.pixels[i];
-    let g = cam.pixels[i + 1];
-    let b = cam.pixels[i + 2];
+  let avg_x = 0;
+  let avg_y = 0;
+  let count = 0;
 
-    if (r > threshold && g < noisy && b < noisy) {
-      //this is a red pixel.
+  for (let x = 0; x < cam.width; x++) {
+    for (let y = 0; y < cam.height; y++) {
+      let n = (y * cam.width + x) * 4;
+      //go over every single pixel, and see if it matches colour.
 
-      //check if this is far away from other reds that we've seen.
-      let pos = get_coordinates(i);
+      let pr = cam.pixels[n];
+      let pg = cam.pixels[n + 1];
+      let pb = cam.pixels[n + 2];
 
-      if (units.length > 0) {
+      //color difference:
+      let dr = abs(pr - col_to_detect.r);
+      let dg = abs(pg - col_to_detect.g);
+      let db = abs(pb - col_to_detect.b);
+
+      let desired = false;
+
+      if (dr < threshold && dg < threshold && db < threshold) {
+        //this means that this point is roughly the same colour.
+        desired = true;
+      }
+
+      if (desired) {
+        //check if another unit already has this in the past:
+
+        if (units.length < 1) {
+          //no units have been created, make a unit.
+          units.push(new Unit(x, y, my_memories[0]));
+        }
+
         for (let i = 0; i < units.length; i++) {
-          let d = dist(pos.x, pos.y, units[i].x, units[i].y);
+          let d = dist(x, y, units[i].x, units[i].y);
 
-          if (d > dis) {
-            units.push(new Unit(pos.x, pos.y, my_memories[0]));
+          if (d > dist_between_units) {
+            //it's a new unit.
+            units.push(new Unit(x, y, my_memories[0]));
+            break;
+          } else {
+            //it's an old unit.
+            units[i].update(x, y);
+            break;
           }
         }
-      } else {
-        units.push(new Unit(pos.x, pos.y, my_memories[0]));
       }
     }
   }
 }
 
+function mousePressed() {
+  has_clicked = true;
+
+  cam.loadPixels();
+  let n = get_pixel_index(mouseX, mouseY);
+
+  col_to_detect.r = cam.pixels[n];
+  col_to_detect.g = cam.pixels[n + 1];
+  col_to_detect.b = cam.pixels[n + 2];
+}
+
+// helpers:
 //helper to convert from pixels array to x, y.
 function get_pixel_index(x, y) {
   return (y * cam.width + x) * 4;
 }
 
+//helper to convert from x, y to pixel index.
 function get_coordinates(n) {
   let pixel_number = n / 4;
 
@@ -92,16 +137,27 @@ function get_coordinates(n) {
   return { x, y };
 }
 
-//each unit has a media file that it loops, a position on the screen, and a size.
 class Unit {
   constructor(x, y, file) {
     this.x = x;
     this.y = y;
-    this.file = file;
-    this.file.loop();
+    this.w = 50;
+    this.h = 50;
+
+    this.file = file; //placeholder to store video file later.
+
+    this.file.loop(); //always loop.
   }
 
-  show() {
-    image(this.file, this.x, this.y, 50, 50);
+  display() {
+    // fill(255);
+    // rect(this.x, this.y, this.w, this.h);
+
+    image (this.file, this.x, this.y, this.w, this.h); 
+  }
+
+  update(x, y) {
+    this.x = x;
+    this.y = y;
   }
 }
