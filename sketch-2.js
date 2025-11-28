@@ -7,7 +7,9 @@ let col_to_detect = {
   b: 0,
 };
 
-let threshold = 10;
+let threshold = 20; //threshold for colour detection to account for lighting.
+
+let units = [];
 
 function setup() {
   cam = createCapture(VIDEO, { flipped: true }, make_canvas);
@@ -30,6 +32,10 @@ function draw() {
 
   tint(255, 100);
   image(cam, 0, 0);
+
+  for (let unit of units) {
+    unit.display();
+  }
 }
 
 function detect() {
@@ -68,7 +74,7 @@ function detect() {
     let x = avg_x / count;
     let y = avg_y / count;
 
-    point(x, y);
+    units.push(new Unit(x, y));
   }
 }
 
@@ -95,4 +101,19 @@ function get_coordinates(n) {
   let y = Math.floor(pixel_number / cam.width);
 
   return { x, y };
+}
+
+class Unit {
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+    this.w = 10;
+    this.h = 10;
+
+    this.file = 0; //placeholder to store video file later.
+  }
+
+  display() {
+    rect(this.x, this.y, this.w, this.h);
+  }
 }
