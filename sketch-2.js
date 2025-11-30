@@ -38,11 +38,11 @@ function setup() {
 }
 
 function make_canvas() {
-  createCanvas(cam.width, cam.height);
+  createCanvas(windowWidth, windowHeight);
 }
 
 function draw() {
-  background(0);
+  background(255);
 
   cam.loadPixels();
 
@@ -50,7 +50,7 @@ function draw() {
     detect();
   }
 
-  tint(255, 100);
+  tint(255, 200);
   image(cam, 0, 0);
 
   for (let unit of units) {
