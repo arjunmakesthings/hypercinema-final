@@ -29,7 +29,7 @@ function preload() {
 }
 
 function setup() {
-  cam = createCapture(VIDEO, { flipped: true }, make_canvas);
+  cam = createCapture(VIDEO, make_canvas);
   cam.hide();
 
   pixelDensity(1);
