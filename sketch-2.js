@@ -7,7 +7,7 @@ let col_to_detect = {
   b: 0,
 };
 
-let threshold = 20; //threshold for colour detection to account for lighting.
+let threshold = 10; //threshold for colour detection to account for lighting.
 
 let dist_between_units = 500;
 
@@ -29,7 +29,7 @@ function preload() {
 }
 
 function setup() {
-  cam = createCapture(VIDEO, make_canvas);
+  cam = createCapture(VIDEO, canv_to_asp);
   cam.hide();
 
   pixelDensity(1);
@@ -39,6 +39,14 @@ function setup() {
 
 function make_canvas() {
   createCanvas(windowWidth, windowHeight);
+}
+
+function canv_to_asp() {
+  let asp_ratio = cam.height / cam.width;
+
+  let wh = windowWidth * asp_ratio;
+
+  createCanvas(windowWidth, wh);
 }
 
 function draw() {
@@ -51,7 +59,7 @@ function draw() {
   }
 
   // tint(255, 200);
-  image(cam, 0, 0);
+  image(cam, 0, 0, width, height);
 
   for (let unit of units) {
     unit.display();
