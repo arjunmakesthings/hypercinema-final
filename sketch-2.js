@@ -42,7 +42,7 @@ function make_canvas() {
 }
 
 function draw() {
-  background(255);
+  background(190);
 
   cam.loadPixels();
 
@@ -51,7 +51,7 @@ function draw() {
   }
 
   // tint(255, 200);
-  image(cam, 0, 0), width, height;
+  image(cam, 0, 0);
 
   for (let unit of units) {
     unit.display();
@@ -153,7 +153,7 @@ class Unit {
     // fill(255);
     // rect(this.x, this.y, this.w, this.h);
 
-    image (this.file, this.x, this.y, this.w, this.h); 
+    image(this.file, this.x, this.y, this.w, this.h);
   }
 
   update(x, y) {
