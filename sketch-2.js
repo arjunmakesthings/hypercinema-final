@@ -113,6 +113,8 @@ function detect() {
       if (desired) {
         //check if another unit already has this in the past:
 
+        rect (x, y, 50,50); 
+
         if (units.length < 1) {
           //no units have been created, make a unit.
           units.push(new Unit(x, y, my_memories[0]));
@@ -144,7 +146,7 @@ function mousePressed() {
   let corrected_x = map(mouseX, 0, width, 0, cam.width); 
   let corrected_y = map(mouseY, 0, height, 0, cam.height);
 
-  let n = get_pixel_index(corrected_x, corrected_y);
+  let n = get_pixel_index(mouseX, mouseY);
 
   col_to_detect.r = cam.pixels[n];
   col_to_detect.g = cam.pixels[n + 1];
