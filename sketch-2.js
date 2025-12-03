@@ -7,7 +7,7 @@ let col_to_detect = {
   b: 0,
 };
 
-let threshold = 20; //threshold for colour detection to account for lighting.
+let threshold = 10; //threshold for colour detection to account for lighting.
 
 let dist_between_units = 500;
 
@@ -41,8 +41,16 @@ function make_canvas() {
   createCanvas(windowWidth, windowHeight);
 }
 
+// function canv_to_asp() {
+//   let asp_ratio = cam.height / cam.width;
+
+//   let wh = windowWidth * asp_ratio;
+
+//   createCanvas(windowWidth, wh);
+// }
+
 function draw() {
-  background(255);
+  background(190);
 
   cam.loadPixels();
 
@@ -50,7 +58,7 @@ function draw() {
     detect();
   }
 
-  tint(255, 200);
+  // tint(255, 200);
   image(cam, 0, 0);
 
   for (let unit of units) {
@@ -153,7 +161,7 @@ class Unit {
     // fill(255);
     // rect(this.x, this.y, this.w, this.h);
 
-    image (this.file, this.x, this.y, this.w, this.h); 
+    image(this.file, this.x, this.y, this.w, this.h);
   }
 
   update(x, y) {
