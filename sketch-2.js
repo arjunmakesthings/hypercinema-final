@@ -18,6 +18,8 @@ let has_clicked = false; //to account for first time values being black (and mes
 let my_memories = [];
 let dad_memories = [];
 
+let scaler = 6;
+
 function preload() {
   my_memories[0] = createVideo("./assets/media/my-memories/0.mp4");
   dad_memories[0] = createVideo("./assets/media/dad-memories/0.mp4");
@@ -38,7 +40,7 @@ function setup() {
 }
 
 function make_canvas() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(2000, windowHeight);
 }
 
 // function canv_to_asp() {
@@ -50,7 +52,10 @@ function make_canvas() {
 // }
 
 function draw() {
-  background(190);
+  background(0);
+
+  //translations:
+  push(); 
 
   cam.loadPixels();
 
@@ -59,20 +64,30 @@ function draw() {
   }
 
   // tint(255, 200);
-  image(cam, 0, 0);
+//  image(cam, 0, 0, width, height, 100, 0, cam.width, cam.height);
+
+
+image (cam, 0, 0); 
+
 
   for (let unit of units) {
     unit.display();
   }
+
+  // text (mouseX + "," + mouseY, mouseX, mouseY); 
+  pop();
+
 
   draw_registration_for_canvas(); 
 }
 
 function draw_registration_for_canvas(){
   push(); 
-  rectMode (LEFT); 
   fill (0,255,0); 
   rect (0,0,50,50); 
+  rect(0, height-50, 50, 50); 
+  rect(width-50, 0, 50, 50);
+  rect(width - 50, height - 50, 50, 50); 
   pop();
 }
 
