@@ -29,7 +29,7 @@ function preload() {
 }
 
 function setup() {
-  cam = createCapture(VIDEO, canv_to_asp);
+  cam = createCapture(VIDEO, make_canvas);
   cam.hide();
 
   pixelDensity(1);
@@ -41,13 +41,13 @@ function make_canvas() {
   createCanvas(windowWidth, windowHeight);
 }
 
-function canv_to_asp() {
-  let asp_ratio = cam.height / cam.width;
+// function canv_to_asp() {
+//   let asp_ratio = cam.height / cam.width;
 
-  let wh = windowWidth * asp_ratio;
+//   let wh = windowWidth * asp_ratio;
 
-  createCanvas(windowWidth, wh);
-}
+//   createCanvas(windowWidth, wh);
+// }
 
 function draw() {
   background(190);
@@ -59,7 +59,7 @@ function draw() {
   }
 
   // tint(255, 200);
-  image(cam, 0, 0, width, height);
+  image(cam, 0, 0);
 
   for (let unit of units) {
     unit.display();
