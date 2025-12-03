@@ -55,7 +55,6 @@ function draw() {
   background(0);
 
   //translations:
-  push(); 
 
   cam.loadPixels();
 
@@ -64,30 +63,31 @@ function draw() {
   }
 
   // tint(255, 200);
-//  image(cam, 0, 0, width, height, 100, 0, cam.width, cam.height);
+  //  image(cam, 0, 0, width, height, 100, 0, cam.width, cam.height);
 
-
-image (cam, 0, 0); 
-
+  push();
+  translate (-842,-265); 
+  scale (scaler,scaler); 
+  image(cam, 0, 0);
+  pop();
 
   for (let unit of units) {
     unit.display();
   }
 
-  // text (mouseX + "," + mouseY, mouseX, mouseY); 
+  // text (mouseX + "," + mouseY, mouseX, mouseY);
   pop();
 
-
-  draw_registration_for_canvas(); 
+  draw_registration_for_canvas();
 }
 
-function draw_registration_for_canvas(){
-  push(); 
-  fill (0,255,0); 
-  rect (0,0,50,50); 
-  rect(0, height-50, 50, 50); 
-  rect(width-50, 0, 50, 50);
-  rect(width - 50, height - 50, 50, 50); 
+function draw_registration_for_canvas() {
+  push();
+  fill(0, 255, 0);
+  rect(0, 0, 50, 50);
+  rect(0, height - 50, 50, 50);
+  rect(width - 50, 0, 50, 50);
+  rect(width - 50, height - 50, 50, 50);
   pop();
 }
 
