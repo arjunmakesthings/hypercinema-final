@@ -31,7 +31,7 @@ function preload() {
 }
 
 function setup() {
-  cam = createCapture(VIDEO, make_canvas);
+  cam = createCapture(VIDEO, {flipped:true}, make_canvas);
   cam.hide();
 
   pixelDensity(1);
@@ -140,7 +140,11 @@ function mousePressed() {
   has_clicked = true;
 
   cam.loadPixels();
-  let n = get_pixel_index(mouseX, mouseY);
+
+  let corrected_x = map(mouseX, 0, width, 0, cam.width); 
+  let corrected_y = map(mouseY, 0, height, 0, cam.height);
+
+  let n = get_pixel_index(corrected_x, corrected_y);
 
   col_to_detect.r = cam.pixels[n];
   col_to_detect.g = cam.pixels[n + 1];
@@ -178,6 +182,9 @@ class Unit {
   display() {
     // fill(255);
     // rect(this.x, this.y, this.w, this.h);
+
+    // this.x = map(this.x, 0, cam.width, 0, width); 
+    // this.y = map(this.y, 0, cam.height, 0, height); 
 
     image(this.file, this.x, this.y, this.w, this.h);
   }
