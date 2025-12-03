@@ -7,7 +7,7 @@ let col_to_detect = {
   b: 0,
 };
 
-let threshold = 10; //threshold for colour detection to account for lighting.
+let threshold = 50; //threshold for colour detection to account for lighting.
 
 let dist_between_units = 500;
 
@@ -58,25 +58,24 @@ function draw() {
 
   cam.loadPixels();
 
-  if (has_clicked == true) {
-    detect();
-  }
-
   // tint(255, 200);
   //  image(cam, 0, 0, width, height, 100, 0, cam.width, cam.height);
 
   push();
-  translate (-842,-265); 
-  scale (scaler,scaler); 
+  if (has_clicked == true) {
+    detect();
+  }
+  translate(-842, -265);
+  scale(scaler, scaler);
   image(cam, 0, 0);
-  pop();
+
+  scale(1, 1);
 
   for (let unit of units) {
     unit.display();
   }
-
-  // text (mouseX + "," + mouseY, mouseX, mouseY);
   pop();
+  // text (mouseX + "," + mouseY, mouseX, mouseY);
 
   draw_registration_for_canvas();
 }
