@@ -64,6 +64,16 @@ function draw() {
   for (let unit of units) {
     unit.display();
   }
+
+  draw_registration_for_canvas(); 
+}
+
+function draw_registration_for_canvas(){
+  push(); 
+  rectMode (LEFT); 
+  fill (0,255,0); 
+  rect (0,0,50,50); 
+  pop();
 }
 
 function detect() {
