@@ -20,6 +20,8 @@ let dad_memories = [];
 
 let scaler = 6;
 
+let col_selected = false;
+
 function preload() {
   my_memories[0] = createVideo("./assets/media/my-memories/0.mp4");
   dad_memories[0] = createVideo("./assets/media/dad-memories/0.mp4");
@@ -63,7 +65,7 @@ function draw() {
   // tint(255, 200);
   //  image(cam, 0, 0, width, height, 100, 0, cam.width, cam.height);
 
-  image(cam, 0, 0);
+  (!col_selected) ? image (cam, 0,0) : image(cam,0,0,width,height); 
 
   for (let unit of units) {
     unit.display();
@@ -151,6 +153,8 @@ function mousePressed() {
   col_to_detect.r = cam.pixels[n];
   col_to_detect.g = cam.pixels[n + 1];
   col_to_detect.b = cam.pixels[n + 2];
+
+  col_selected=true;
 }
 
 // helpers:
@@ -179,20 +183,20 @@ class Unit {
     this.file = file; //placeholder to store video file later.
 
     this.file.loop(); //always loop.
+
+    this.scaled_x = map(this.x, 0, cam.width, 0, width); 
+    this.scaled_y = map(this.y, 0, cam.height, 0, height); 
   }
 
   display() {
     // fill(255);
     // rect(this.x, this.y, this.w, this.h);
 
-    // this.x = map(this.x, 0, cam.width, 0, width); 
-    // this.y = map(this.y, 0, cam.height, 0, height); 
-
-    image(this.file, this.x, this.y, this.w, this.h);
+    image(this.file, this.scaled_x, this.scaled_y, this.w, this.h);
   }
 
   update(x, y) {
-    this.x = x;
-    this.y = y;
+    this.scaled_x = map(x, 0, cam.width, 0, width);
+    this.scaled_y = map(y, 0, cam.height, 0, height); 
   }
 }
