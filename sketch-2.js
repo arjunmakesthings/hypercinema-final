@@ -7,9 +7,9 @@ let col_to_detect = {
   b: 0,
 };
 
-let threshold = 10; //threshold for colour detection to account for lighting.
+let threshold = 30; //threshold for colour detection to account for lighting.
 
-let dist_between_units = 500;
+let dist_between_units = 100;
 
 let units = [];
 
@@ -17,8 +17,6 @@ let has_clicked = false; //to account for first time values being black (and mes
 
 let my_memories = [];
 let dad_memories = [];
-
-let scaler = 6;
 
 let col_selected = false;
 
@@ -42,7 +40,7 @@ function setup() {
 }
 
 function make_canvas() {
-  createCanvas(1385, windowHeight);
+  createCanvas(windowWidth, windowHeight);
 }
 
 // function canv_to_asp() {
@@ -70,7 +68,7 @@ function draw() {
   if (!col_selected) {
     image(cam, 0, 0);
   } else {
-    tint(255, 50);
+    // tint(255, 50);
     // image (cam,0,0,width,height);
   }
 
@@ -78,19 +76,13 @@ function draw() {
     unit.display();
   }
 
-  text(mouseX + "," + mouseY, mouseX, mouseY);
-
-  draw_registration_for_canvas();
-}
-
-function draw_registration_for_canvas() {
-  push();
-  fill(0, 255, 0);
-  rect(0, 0, 50, 50);
-  rect(0, height - 50, 50, 50);
-  rect(width - 50, 0, 50, 50);
-  rect(width - 50, height - 50, 50, 50);
-  pop();
+  //turn off for display:
+  debug_view({
+    see_color: true,
+    make_bounding: true,
+    see_bg_video: true,
+    show_distance: true,
+  });
 }
 
 function detect() {
@@ -143,6 +135,61 @@ function detect() {
       }
     }
   }
+}
+
+function debug_view({
+  //accepts a few parameters.
+  see_color = false,
+  make_bounding = false,
+  see_bg_video = false,
+  show_distance = false,
+}) {
+  //what to do when certain parameters are passed.
+  if (see_color) {
+    let n = get_pixel_index(mouseX, mouseY);
+
+    let r = cam.pixels[n];
+    let g = cam.pixels[n + 1];
+    let b = cam.pixels[n + 2];
+    fill(255);
+    text("rgb: " + cam.pixels[r] + "," + cam.pixels[g] + "," + cam.pixels[b], mouseX, mouseY);
+  }
+
+  if (make_bounding) {
+    for (let i = 0; i < units.length; i++) {
+      //add green bounding box.
+      noFill();
+      stroke(0, 255, 0);
+      rect(units[i].scaled_x, units[i].scaled_y, units[i].w, units[i].h);
+    }
+  }
+
+  if (see_bg_video & has_clicked) {
+    tint(255, 100);
+    image(cam, 0, 0, width, height, 100, 0, cam.width, cam.height);
+  }
+
+  if (show_distance) {
+    for (let i = 0; i < units.length; i++) {
+      for (let j = i + 1; j < units.length; j++) {
+        strokeWeight(1);
+        stroke(255);
+        line(units[i].x, units[i].y, units[j].x, units[j].y);
+
+        // let distance = dist(units[i].x, units[i].y, units[j].x, units[j].y);
+      }
+    }
+  }
+}
+
+function draw_registration_for_canvas() {
+  push();
+  fill(0, 255, 0);
+  rect(0, 0, 50, 50);
+  rect(0, height - 50, 50, 50);
+  rect(width - 50, 0, 50, 50);
+  rect(width - 50, height - 50, 50, 50);
+  pop();
 }
 
 function mousePressed() {
