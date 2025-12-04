@@ -33,7 +33,7 @@ function preload() {
 }
 
 function setup() {
-  cam = createCapture(VIDEO, {flipped:true}, make_canvas);
+  cam = createCapture(VIDEO, make_canvas);
   cam.hide();
 
   pixelDensity(1);
@@ -42,7 +42,7 @@ function setup() {
 }
 
 function make_canvas() {
-  createCanvas(2000, windowHeight);
+  createCanvas(1385, windowHeight);
 }
 
 // function canv_to_asp() {
@@ -71,7 +71,7 @@ function draw() {
     unit.display();
   }
 
-  // text (mouseX + "," + mouseY, mouseX, mouseY); 
+  text (mouseX + "," + mouseY, mouseX, mouseY); 
 
   draw_registration_for_canvas();
 }
@@ -177,8 +177,8 @@ class Unit {
   constructor(x, y, file) {
     this.x = x;
     this.y = y;
-    this.w = 50;
-    this.h = 50;
+    this.w = 200;
+    this.h = 200;
 
     this.file = file; //placeholder to store video file later.
 
