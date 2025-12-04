@@ -55,7 +55,7 @@ function make_canvas() {
 
 function draw() {
   background(0);
-  
+
   cam.loadPixels();
 
   if (has_clicked == true) {
@@ -65,13 +65,20 @@ function draw() {
   // tint(255, 200);
   //  image(cam, 0, 0, width, height, 100, 0, cam.width, cam.height);
 
-  (!col_selected) ? image (cam, 0,0) : image(cam,0,0,width,height); 
+  // (!col_selected) ? image (cam, 0,0) : image(cam,0,0,width,height);
+
+  if (!col_selected) {
+    image(cam, 0, 0);
+  } else {
+    tint(255, 50);
+    // image (cam,0,0,width,height);
+  }
 
   for (let unit of units) {
     unit.display();
   }
 
-  text (mouseX + "," + mouseY, mouseX, mouseY); 
+  text(mouseX + "," + mouseY, mouseX, mouseY);
 
   draw_registration_for_canvas();
 }
@@ -115,8 +122,6 @@ function detect() {
       if (desired) {
         //check if another unit already has this in the past:
 
-        rect (x, y, 50,50); 
-
         if (units.length < 1) {
           //no units have been created, make a unit.
           units.push(new Unit(x, y, my_memories[0]));
@@ -145,7 +150,7 @@ function mousePressed() {
 
   cam.loadPixels();
 
-  let corrected_x = map(mouseX, 0, width, 0, cam.width); 
+  let corrected_x = map(mouseX, 0, width, 0, cam.width);
   let corrected_y = map(mouseY, 0, height, 0, cam.height);
 
   let n = get_pixel_index(mouseX, mouseY);
@@ -154,7 +159,7 @@ function mousePressed() {
   col_to_detect.g = cam.pixels[n + 1];
   col_to_detect.b = cam.pixels[n + 2];
 
-  col_selected=true;
+  col_selected = true;
 }
 
 // helpers:
@@ -184,8 +189,8 @@ class Unit {
 
     this.file.loop(); //always loop.
 
-    this.scaled_x = map(this.x, 0, cam.width, 0, width); 
-    this.scaled_y = map(this.y, 0, cam.height, 0, height); 
+    this.scaled_x = map(this.x, 0, cam.width, 0, width);
+    this.scaled_y = map(this.y, 0, cam.height, 0, height);
   }
 
   display() {
@@ -197,6 +202,6 @@ class Unit {
 
   update(x, y) {
     this.scaled_x = map(x, 0, cam.width, 0, width);
-    this.scaled_y = map(y, 0, cam.height, 0, height); 
+    this.scaled_y = map(y, 0, cam.height, 0, height);
   }
 }
