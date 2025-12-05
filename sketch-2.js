@@ -31,11 +31,13 @@ function draw() {
     set_colour();
   } else {
     detect();
+    image(cam, 0, 0, width, height);
   }
 
   for (unit of units) {
     unit.display();
   }
+  text(mouseX + "," + mouseY, mouseX, mouseY);
 }
 
 let col_to_detect = {
@@ -67,9 +69,9 @@ function set_colour() {
   }
 }
 
-let col_difference_threshold = 10; //this number is used to account for noise that the webcam will experience.
+let col_difference_threshold = 40; //this number is used to account for noise that the webcam will experience.
 
-let required_distance = 500; //required distance before a pixel is considered a new unit.
+let required_distance = 50; //required distance before a pixel is considered a new unit.
 
 function detect() {
   cam.loadPixels();
@@ -89,34 +91,65 @@ function detect() {
       //if the colour does not match, skip this iteration and move on to the next iteration.
       if (dr > col_difference_threshold || dg > col_difference_threshold || db > col_difference_threshold) continue;
 
-      //if the code has progressed, it means that it is a pixel that we care about. s
+      //if the code has progressed, it means that this is a pixel we care about.
 
-      //first, we scale this coordinate to canvas-space.
-      const scaled_x = map(x, 0, cam.width, 0, width);
-      const scaled_y = map(y, 0, cam.height, 0, height);
-
-      //assume positively: this is a brand new blob.
-      let matched_unit = false;
-
-      for (let unit of units) {
-        const d = dist(scaled_x, scaled_y, unit.scaled_x, unit.scaled_y);
-
-        if (d < required_distance) {
-          //if it is close to a unit that we created in the previous frame, it is probably the same unit. just update it, and exit this loop.
-          unit.update(scaled_x, scaled_y);
-          matched_unit = true;
-
-          //if you've already found a match, stop checking more.
-          break;
-        }
-      }
-
-      //if after all the loops, it is still considered a new position, we make a new unit.
-      if (!matched_unit) {
+      //if no unit has been made, we make a unit.
+      if (units.length < 1) {
         units.push(new Unit(x, y));
+      } else {
+        //previous units have been made. let's check against them.
+
+        //first, we scale the coordinates of this pixel to canvas-space.
+        const scaled_x = map(x, 0, cam.width, 0, width);
+        const scaled_y = map(y, 0, cam.height, 0, height);
+
+        //assume positively: this is a brand new blob.
+        let matched_unit = false;
+
+        for (let unit of units) {
+          const d = dist(scaled_x, scaled_y, unit.scaled_x, unit.scaled_y);
+
+          if (d < required_distance) {
+            //if it is close to a unit that we created in the previous frame, it is probably the same unit. just update it, and exit this loop.
+            unit.update(scaled_x, scaled_y);
+            matched_unit = true;
+
+            //if you've already found a match, stop checking more.
+            break;
+          }
+        }
+
+        //if after all the loops, it is still considered a new position, we make a new unit.
+        if (!matched_unit) {
+          //just double check if the underlying cam_x and cam_y are actually red. 
+          units.push(new Unit(x, y));
+        }
+
+        //double check if things behind are actually red. 
       }
     }
   }
+
+  units = units.filter((u) => {
+    let ix = floor(u.x);
+    let iy = floor(u.y);
+
+    ix = constrain(ix, 0, cam.width - 1);
+    iy = constrain(iy, 0, cam.height - 1);
+
+    let idx = (iy * cam.width + ix) * 4;
+
+    let rr = cam.pixels[idx];
+    let gg = cam.pixels[idx + 1];
+    let bb = cam.pixels[idx + 2];
+
+    let dr2 = abs(rr - col_to_detect.r);
+    let dg2 = abs(gg - col_to_detect.g);
+    let db2 = abs(bb - col_to_detect.b);
+
+    return dr2 < col_difference_threshold && dg2 < col_difference_threshold && db2 < col_difference_threshold;
+  });
+
 }
 
 class Unit {
