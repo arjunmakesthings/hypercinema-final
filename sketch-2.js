@@ -71,10 +71,13 @@ function set_colour() {
 
 let col_difference_threshold = 40; //this number is used to account for noise that the webcam will experience.
 
-let required_distance = 50; //required distance before a pixel is considered a new unit.
+let required_distance = 200; //required distance before a pixel is considered a new unit.
 
 function detect() {
   cam.loadPixels();
+
+  // Prepare a temporary array to accumulate positions for averaging
+  let unit_accumulators = units.map(() => ({ sum_x: 0, sum_y: 0, count: 0 }));
 
   for (let x = 0; x < cam.width; x++) {
     for (let y = 0; y < cam.height; y++) {
@@ -93,42 +96,47 @@ function detect() {
 
       //if the code has progressed, it means that this is a pixel we care about.
 
-      //if no unit has been made previously, we make a unit.
-      if (units.length < 1) {
+      //first, we scale the coordinates of this pixel to canvas-space.
+      let scaled_x = map(x, 0, cam.width, 0, width);
+      let scaled_y = map(y, 0, cam.height, 0, height);
+
+      //assume positively: this is a brand new blob.
+      let this_has_a_unit = false;
+
+      for (let i = 0; i < units.length; i++) {
+        let unit = units[i];
+
+        let d = dist(scaled_x, scaled_y, unit.scaled_x, unit.scaled_y);
+
+        if (d < required_distance) {
+          // accumulate positions for averaging
+          unit_accumulators[i].sum_x += scaled_x;
+          unit_accumulators[i].sum_y += scaled_y;
+          unit_accumulators[i].count++;
+          this_has_a_unit = true;
+
+          break; // stop checking other units
+        }
+      }
+
+      //if after all the loops, it is still considered a new position, we make a new unit.
+      if (!this_has_a_unit) {
         units.push(new Unit(x, y));
-      } else {
-        //previous units have been made. let's check against them to understand if it's just the previous unit.
-
-        //first, we scale the coordinates of this pixel to canvas-space.
-        let scaled_x = map(x, 0, cam.width, 0, width);
-        let scaled_y = map(y, 0, cam.height, 0, height);
-
-        //assume positively: this is a brand new blob.
-        let this_has_a_unit = false;
-
-        for (let unit of units) {
-          //check against all units previously made.
-
-          let d = dist(scaled_x, scaled_y, unit.scaled_x, unit.scaled_y);
-
-          if (d < required_distance) {
-            //if it is close to a unit that we created in the previous frame, then it is probably the same unit. just update it, and exit this loop.
-            unit.update(scaled_x, scaled_y);
-            this_has_a_unit = true;
-
-            //if you've already found a match, stop checking for more.
-            break;
-          }
-        }
-
-        //if after all the loops, it is still considered a new position, we make a new unit.
-        if (!this_has_a_unit) {
-          //just double check if the underlying cam_x and cam_y are actually red.
-          units.push(new Unit(x, y));
-        }
+        // add new accumulator for averaging
+        unit_accumulators.push({ sum_x: map(x, 0, cam.width, 0, width), sum_y: map(y, 0, cam.height, 0, height), count: 1 });
       }
     }
   }
+
+  // Update units to average positions
+  for (let i = 0; i < units.length; i++) {
+    if (unit_accumulators[i].count > 0) {
+      let avg_x = unit_accumulators[i].sum_x / unit_accumulators[i].count;
+      let avg_y = unit_accumulators[i].sum_y / unit_accumulators[i].count;
+      units[i].update(avg_x, avg_y);
+    }
+  }
+
   double_check();
 }
 
