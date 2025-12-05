@@ -37,7 +37,6 @@ function draw() {
   for (unit of units) {
     unit.display();
   }
-  text(mouseX + "," + mouseY, mouseX, mouseY);
 }
 
 let col_to_detect = {
@@ -160,10 +159,10 @@ function double_check() {
     //if the colour does not match, skip this iteration and move on to the next iteration.
     if (dr > col_difference_threshold || dg > col_difference_threshold || db > col_difference_threshold) {
       //not our colour.
-      units.splice(i,1); 
+      units.splice(i, 1);
     } else {
-      //our colour: 
-      continue; 
+      //our colour:
+      continue;
     }
   }
 }
