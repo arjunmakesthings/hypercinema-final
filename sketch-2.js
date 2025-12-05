@@ -6,6 +6,20 @@ let units = [];
 
 let clicked = false;
 
+//memories:
+let my_memories = [];
+let dad_memories = [];
+
+function preload() {
+  my_memories[0] = createVideo("./assets/media/my-memories/0.mp4");
+  dad_memories[0] = createVideo("./assets/media/dad-memories/0.mp4");
+
+  for (let i = 0; i < my_memories.length; i++) {
+    my_memories[i].hide();
+    dad_memories[i].hide();
+  }
+}
+
 function setup() {
   //set defaults:
   pixelDensity(1);
@@ -68,9 +82,9 @@ function set_colour() {
   }
 }
 
-let col_difference_threshold = 40; //this number is used to account for noise that the webcam will experience.
+let col_difference_threshold = 30; //this number is used to account for noise that the webcam will experience.
 
-let required_distance = 200; //required distance before a pixel is considered a new unit.
+let required_distance = 300; //required distance before a pixel is considered a new unit.
 
 function detect() {
   cam.loadPixels();
@@ -120,7 +134,17 @@ function detect() {
 
       //if after all the loops, it is still considered a new position, we make a new unit.
       if (!this_has_a_unit) {
-        units.push(new Unit(x, y));
+        //we want to push a new unit with a media file attached to it.
+
+        let n = 0; //placeholder for index of memories.
+        if (x < cam.width / 2) {
+          //our unit is in the left-half. make it pick from my memories.
+          units.push(new Unit(x, y, 0));
+        } else {
+          //in the right half. make it pick from dad's memories.
+          units.push(new Unit(x, y, 1));
+        }
+
         // add new accumulator for averaging
         unit_accumulators.push({ sum_x: map(x, 0, cam.width, 0, width), sum_y: map(y, 0, cam.height, 0, height), count: 1 });
       }
@@ -168,20 +192,55 @@ function double_check() {
 }
 
 class Unit {
-  constructor(x, y) {
+  constructor(x, y, brain) {
     this.x = x;
     this.y = y;
 
     this.scaled_x = map(this.x, 0, cam.width, 0, width);
     this.scaled_y = map(this.y, 0, cam.height, 0, height);
 
-    this.w = 10;
-    this.h = 10;
+    this.w = 100;
+    this.h = 100;
+
+    this.brain = brain;
+
+    this.main_file;
+    this.hidden_file;
+
+    this.tint_val_main = 0; 
+    this.tint_val_hidden = 0; 
+
+    if ((this.brain = 0)) {
+      let n = floor(random(my_memories.length));
+      this.main_file = my_memories[n];
+      this.hidden_file = dad_memories[n];
+    } else {
+      let n = floor(random(my_memories.length));
+      this.main_file = dad_memories[n];
+      this.hidden_file = my_memories[n];
+    }
+    this.main_file.loop();
+    this.hidden_file.loop();
   }
 
   display() {
-    fill(255);
-    rect(this.scaled_x, this.scaled_y, this.w, this.h);
+    // fill(255);
+    // rect(this.scaled_x, this.scaled_y, this.w, this.h);
+
+    this.tint_val_main = map(this.scaled_x, 0, width, 0, 255); 
+    this.tint_val_hidden = map(this.scaled_x, 0, width, 255, 0); 
+    
+    push();
+    tint (255,this.tint_val_main); 
+    image(this.main_file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h); 
+    pop();
+
+    push();
+    tint(255, this.tint_val_hidden);
+    image(this.hidden_file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h); 
+    pop();
+
+    // image(this.file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h);
   }
 
   update(x, y) {
