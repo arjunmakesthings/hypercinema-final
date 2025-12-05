@@ -93,63 +93,71 @@ function detect() {
 
       //if the code has progressed, it means that this is a pixel we care about.
 
-      //if no unit has been made, we make a unit.
+      //if no unit has been made previously, we make a unit.
       if (units.length < 1) {
         units.push(new Unit(x, y));
       } else {
-        //previous units have been made. let's check against them.
+        //previous units have been made. let's check against them to understand if it's just the previous unit.
 
         //first, we scale the coordinates of this pixel to canvas-space.
-        const scaled_x = map(x, 0, cam.width, 0, width);
-        const scaled_y = map(y, 0, cam.height, 0, height);
+        let scaled_x = map(x, 0, cam.width, 0, width);
+        let scaled_y = map(y, 0, cam.height, 0, height);
 
         //assume positively: this is a brand new blob.
-        let matched_unit = false;
+        let this_has_a_unit = false;
 
         for (let unit of units) {
-          const d = dist(scaled_x, scaled_y, unit.scaled_x, unit.scaled_y);
+          //check against all units previously made.
+
+          let d = dist(scaled_x, scaled_y, unit.scaled_x, unit.scaled_y);
 
           if (d < required_distance) {
-            //if it is close to a unit that we created in the previous frame, it is probably the same unit. just update it, and exit this loop.
+            //if it is close to a unit that we created in the previous frame, then it is probably the same unit. just update it, and exit this loop.
             unit.update(scaled_x, scaled_y);
-            matched_unit = true;
+            this_has_a_unit = true;
 
-            //if you've already found a match, stop checking more.
+            //if you've already found a match, stop checking for more.
             break;
           }
         }
 
         //if after all the loops, it is still considered a new position, we make a new unit.
-        if (!matched_unit) {
-          //just double check if the underlying cam_x and cam_y are actually red. 
+        if (!this_has_a_unit) {
+          //just double check if the underlying cam_x and cam_y are actually red.
           units.push(new Unit(x, y));
         }
-
-        //double check if things behind are actually red. 
       }
     }
   }
+  double_check();
+}
 
-  units = units.filter((u) => {
-    let ix = floor(u.x);
-    let iy = floor(u.y);
+function double_check() {
+  for (let i = 0; i < units.length; i++) {
+    //units have a scaled-x and scaled-y. we unscale them first.
 
-    ix = constrain(ix, 0, cam.width - 1);
-    iy = constrain(iy, 0, cam.height - 1);
+    let cam_scale_x = map(units[i].scaled_x, 0, width, 0, cam.width);
+    let cam_scale_y = map(units[i].scaled_y, 0, height, 0, cam.height);
 
-    let idx = (iy * cam.width + ix) * 4;
+    let cam_pixel_index = get_cam_pixel_index(floor(cam_scale_x), floor(cam_scale_y));
 
-    let rr = cam.pixels[idx];
-    let gg = cam.pixels[idx + 1];
-    let bb = cam.pixels[idx + 2];
+    let pr = cam.pixels[cam_pixel_index];
+    let pg = cam.pixels[cam_pixel_index + 1];
+    let pb = cam.pixels[cam_pixel_index + 2];
 
-    let dr2 = abs(rr - col_to_detect.r);
-    let dg2 = abs(gg - col_to_detect.g);
-    let db2 = abs(bb - col_to_detect.b);
+    let dr = abs(pr - col_to_detect.r);
+    let dg = abs(pg - col_to_detect.g);
+    let db = abs(pb - col_to_detect.b);
 
-    return dr2 < col_difference_threshold && dg2 < col_difference_threshold && db2 < col_difference_threshold;
-  });
-
+    //if the colour does not match, skip this iteration and move on to the next iteration.
+    if (dr > col_difference_threshold || dg > col_difference_threshold || db > col_difference_threshold) {
+      //not our colour.
+      units.splice(i,1); 
+    } else {
+      //our colour: 
+      continue; 
+    }
+  }
 }
 
 class Unit {
