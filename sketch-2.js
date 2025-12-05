@@ -2,6 +2,47 @@
 
 let cam;
 
+let units = [];
+
+let clicked = false;
+
+function setup() {
+  //set defaults:
+  pixelDensity(1);
+  noStroke();
+
+  cam = createCapture(VIDEO, canv_to_asp);
+
+  cam.hide();
+}
+
+function make_canvas() {
+  createCanvas(cam.width, cam.height);
+}
+
+function canv_to_asp() {
+  let asp_ratio = cam.height / cam.width;
+
+  let wh = windowWidth * asp_ratio;
+
+  createCanvas(windowWidth, wh);
+}
+
+function draw() {
+  background(0);
+
+  //i wanted to use a tertiary operator, but it just works differently and causes an error in my program.
+  if (!col_set) {
+    set_colour();
+  } else {
+    detect();
+  }
+
+  for (unit of units) {
+    unit.display();
+  }
+}
+
 let col_to_detect = {
   r: 0,
   g: 0,
@@ -10,64 +51,74 @@ let col_to_detect = {
 
 let col_set = false;
 
-let units = [];
+function set_colour() {
+  image(cam, 0, 0, width, height);
 
-function setup() {
-  //set defaults:
-  pixelDensity(1);
-  noStroke();
-
-  cam = createCapture(VIDEO, make_canvas);
-}
-
-function make_canvas() {
-  createCanvas(cam.width, cam.height);
-}
-
-function draw() {
-  background(0);
-  //load all camera pixels all the time, because we need that for a bunch of things.
   loadPixels();
 
   let n = get_canvas_pixel_index(floor(mouseX), floor(mouseY));
+
   let r = pixels[n];
 
   fill(255);
   text(r, mouseX, mouseY);
+
+  if (clicked == true) {
+    col_to_detect.r = pixels[n];
+    col_to_detect.g = pixels[n + 1];
+    col_to_detect.b = pixels[n + 2];
+
+    col_set = true;
+  }
 }
 
 let col_difference_threshold = 10; //this number is used to account for noise that the webcam will experience.
 
+let required_distance = 500;
+
 function detect() {
-  //go through every single pixel, and see if it matches the colour that was set.
+  cam.loadPixels();
+
   for (let x = 0; x < cam.width; x++) {
     for (let y = 0; y < cam.height; y++) {
-      let n = (y * cam.width + x) * 4; //get index.
+      let n = (y * cam.width + x) * 4;
 
-      //see if it matches the colour we selected.
       let pr = cam.pixels[n];
       let pg = cam.pixels[n + 1];
       let pb = cam.pixels[n + 2];
 
-      //color difference:
       let dr = abs(pr - col_to_detect.r);
       let dg = abs(pg - col_to_detect.g);
       let db = abs(pb - col_to_detect.b);
 
-      let desired = false; //boolean that assumes that the pixel you're evaluating is not a desired pixel.
+      //if the colour does not match, skip this iteration and move on to the next iteration.
+      if (dr > col_difference_threshold || dg > col_difference_threshold || db > col_difference_threshold) continue;
 
-      if (dr < col_difference_threshold && dg < col_difference_threshold && db < col_difference_threshold) {
-        //this means that this point is roughly the same colour.
-        desired = true;
+      //if the code has progressed, it means that it is a pixel that we care about. s
+
+      //first, we scale this coordinate to canvas-space.
+      const scaled_x = map(x, 0, cam.width, 0, width);
+      const scaled_y = map(y, 0, cam.height, 0, height);
+
+      //assume positively: this is a brand new blob.
+      let matched_unit = false;
+
+      for (let unit of units) {
+        const d = dist(scaled_x, scaled_y, unit.scaled_x, unit.scaled_y);
+
+        if (d < required_distance) {
+          //if it is close to a unit that we created in the previous frame, it is probably the same unit. just update it, and exit this loop.
+          unit.update(scaled_x, scaled_y);
+          matched_unit = true;
+
+          //if you've already found a match, stop checking more.
+          break;
+        }
       }
 
-      if (desired) {
-        //if no other units have been created, make the first one:
-
-        if (units.length < 1) {
-          units.push(new Unit(x, y));
-        }
-      } else {
+      //if after all the loops, it is still considered a new position, we make a new unit.
+      if (!matched_unit) {
+        units.push(new Unit(x, y));
       }
     }
   }
@@ -77,11 +128,22 @@ class Unit {
   constructor(x, y) {
     this.x = x;
     this.y = y;
+
+    this.scaled_x = map(this.x, 0, cam.width, 0, width);
+    this.scaled_y = map(this.y, 0, cam.height, 0, height);
+
+    this.w = 10;
+    this.h = 10;
   }
 
   display() {
     fill(255);
-    rect(this.x, this.y, 50, 50);
+    rect(this.scaled_x, this.scaled_y, this.w, this.h);
+  }
+
+  update(x, y) {
+    this.scaled_x = x;
+    this.scaled_y = y;
   }
 }
 
@@ -100,13 +162,7 @@ function debug_view({ see_colours = false }) {
 }
 
 function mousePressed() {
-  let n = get_cam_pixel_index(mouseX, mouseY);
-
-  col_to_detect.r = cam.pixels[n];
-  col_to_detect.g = cam.pixels[n + 1];
-  col_to_detect.b = cam.pixels[n + 2];
-
-  col_set = true;
+  clicked = true;
 }
 
 // helpers:
