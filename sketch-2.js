@@ -12,12 +12,7 @@ function setup() {
   noStroke();
 
   cam = createCapture(VIDEO, canv_to_asp);
-
   cam.hide();
-}
-
-function make_canvas() {
-  createCanvas(cam.width, cam.height);
 }
 
 function canv_to_asp() {
@@ -74,7 +69,7 @@ function set_colour() {
 
 let col_difference_threshold = 10; //this number is used to account for noise that the webcam will experience.
 
-let required_distance = 500;
+let required_distance = 500; //required distance before a pixel is considered a new unit.
 
 function detect() {
   cam.loadPixels();
@@ -144,20 +139,6 @@ class Unit {
   update(x, y) {
     this.scaled_x = x;
     this.scaled_y = y;
-  }
-}
-
-function debug_view({ see_colours = false }) {
-  if (see_colours) {
-    loadPixels();
-    image(cam, 0, 0, width, height);
-    let n = get_canvas_pixel_index(mouseX, mouseY);
-
-    let r = pixels[n];
-    let g = pixels[n + 1];
-    let b = pixels[n + 2];
-    fill(255);
-    text("rgb: " + pixels[r] + "," + pixels[g] + "," + pixels[b], mouseX, mouseY);
   }
 }
 
