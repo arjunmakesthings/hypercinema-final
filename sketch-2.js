@@ -154,10 +154,10 @@ function detect() {
 
         if (x < cam.width / 2) {
           //our unit is in the left-half. make it pick from my memories (0).
-          units.push(new Unit(x, y, 50, 0));
+          units.push(new Unit(x, y, 5, 0));
         } else {
           //in the right half. make it pick from dad's memories (1).
-          units.push(new Unit(x, y, 50, 1));
+          units.push(new Unit(x, y, 5, 1));
         }
 
         //add new accumulator for averaging this pixel's stuff.
