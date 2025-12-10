@@ -1,8 +1,16 @@
+/*
+me, my father & our neurons. 
+
+made for hypercinema-final at itp; december 2025.
+
+by arjun.
+*/
+
 let cam;
 
 let units = [];
 
-let clicked = false;
+let clicked = false; //toggle to keep track of when i change colour.
 
 //memories:
 let my_memories = [];
@@ -42,8 +50,8 @@ function draw() {
   if (!col_set) {
     set_colour();
   } else {
-    detect();
     image(cam, 0, 0, width, height);
+    detect();
   }
 
   for (unit of units) {
@@ -87,7 +95,7 @@ let required_distance = 300; //required distance before a pixel is considered a 
 function detect() {
   cam.loadPixels();
 
-  // Prepare a temporary array to accumulate positions for averaging
+  //for every unit, create a new accumulator object. we use this to keep track of average positions.
   let unit_accumulators = units.map(() => ({ sum_x: 0, sum_y: 0, count: 0 }));
 
   for (let x = 0; x < cam.width; x++) {
@@ -120,13 +128,13 @@ function detect() {
         let d = dist(scaled_x, scaled_y, unit.scaled_x, unit.scaled_y);
 
         if (d < required_distance) {
-          // accumulate positions for averaging
+          //accumulate positions for averaging:
           unit_accumulators[i].sum_x += scaled_x;
           unit_accumulators[i].sum_y += scaled_y;
           unit_accumulators[i].count++;
           this_has_a_unit = true;
 
-          break; // stop checking other units
+          break; //stop checking other units inside this sub-loop. it is already accounted for.
         }
       }
 
@@ -135,26 +143,32 @@ function detect() {
         //we want to push a new unit with a media file attached to it.
 
         let n = 0; //placeholder for index of memories.
+
         if (x < cam.width / 2) {
-          //our unit is in the left-half. make it pick from my memories.
-          units.push(new Unit(x, y, 0));
+          //our unit is in the left-half. make it pick from my memories (0).
+          units.push(new Unit(x, y, 10, 0));
         } else {
-          //in the right half. make it pick from dad's memories.
-          units.push(new Unit(x, y, 1));
+          //in the right half. make it pick from dad's memories (1).
+          units.push(new Unit(x, y, 10, 1));
         }
 
-        // add new accumulator for averaging
+        //add new accumulator for averaging this pixel's stuff.
         unit_accumulators.push({ sum_x: map(x, 0, cam.width, 0, width), sum_y: map(y, 0, cam.height, 0, height), count: 1 });
       }
     }
   }
 
-  // Update units to average positions
+  // update positions.
   for (let i = 0; i < units.length; i++) {
     if (unit_accumulators[i].count > 0) {
+      units[i].seen = true;
       let avg_x = unit_accumulators[i].sum_x / unit_accumulators[i].count;
       let avg_y = unit_accumulators[i].sum_y / unit_accumulators[i].count;
-      units[i].update(avg_x, avg_y);
+
+      //math tells us that area=height=sqrt(area). area for us is the number of pixels in this accumulator object.
+      let avg_size = Math.sqrt(unit_accumulators[i].count) * 4;
+
+      units[i].update(avg_x, avg_y, avg_size);
     }
   }
 
@@ -162,43 +176,28 @@ function detect() {
 }
 
 function double_check() {
-  for (let i = 0; i < units.length; i++) {
-    //units have a scaled-x and scaled-y. we unscale them first.
-
-    let cam_scale_x = map(units[i].scaled_x, 0, width, 0, cam.width);
-    let cam_scale_y = map(units[i].scaled_y, 0, height, 0, cam.height);
-
-    let cam_pixel_index = get_cam_pixel_index(floor(cam_scale_x), floor(cam_scale_y));
-
-    let pr = cam.pixels[cam_pixel_index];
-    let pg = cam.pixels[cam_pixel_index + 1];
-    let pb = cam.pixels[cam_pixel_index + 2];
-
-    let dr = abs(pr - col_to_detect.r);
-    let dg = abs(pg - col_to_detect.g);
-    let db = abs(pb - col_to_detect.b);
-
-    //if the colour does not match, skip this iteration and move on to the next iteration.
-    if (dr > col_difference_threshold || dg > col_difference_threshold || db > col_difference_threshold) {
-      //not our colour.
+  // remove all units that did not receive any matching pixels this frame
+  for (let i = units.length - 1; i >= 0; i--) {
+    if (!units[i].seen) {
       units.splice(i, 1);
-    } else {
-      //our colour:
-      continue;
     }
+  }
+
+  // reset seen flags for next frame
+  for (let unit of units) {
+    unit.seen = false;
   }
 }
 
 class Unit {
-  constructor(x, y, brain) {
+  constructor(x, y, size, brain) {
     this.x = x;
     this.y = y;
 
     this.scaled_x = map(this.x, 0, cam.width, 0, width);
     this.scaled_y = map(this.y, 0, cam.height, 0, height);
 
-    this.w = 100;
-    this.h = 100;
+    this.s = size;
 
     this.brain = brain;
 
@@ -208,15 +207,21 @@ class Unit {
     this.tint_val_main = 0;
     this.tint_val_hidden = 0;
 
-    if ((this.brain = 0)) {
+    this.seen = false;
+
+    // pick a random index for your memory arrays
+    if (this.brain = 0) {
       let n = floor(random(my_memories.length));
-      this.main_file = my_memories[n];
-      this.hidden_file = dad_memories[n];
-    } else {
-      let n = floor(random(my_memories.length));
-      this.main_file = dad_memories[n];
-      this.hidden_file = my_memories[n];
+      this.main_file = my_memories[0];
+      this.hidden_file = dad_memories[0];
+    } else if (this.brain = 1) {
+      let n = floor(random(dad_memories.length));
+      this.main_file = dad_memories[0];
+      this.hidden_file = my_memories[0];
     }
+    this.main_file.volume(0);
+    this.hidden_file.volume(0);
+
     this.main_file.loop();
     this.hidden_file.loop();
   }
@@ -230,20 +235,21 @@ class Unit {
 
     push();
     tint(255, this.tint_val_main);
-    image(this.main_file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h);
+    image(this.main_file, this.scaled_x - this.s / 2, this.scaled_y - this.s / 2, this.s, this.s);
     pop();
 
     push();
     tint(255, this.tint_val_hidden);
-    image(this.hidden_file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h);
+    image(this.hidden_file, this.scaled_x - this.s / 2, this.scaled_y - this.s / 2, this.s, this.s);
     pop();
 
-    // image(this.file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h);
   }
 
-  update(x, y) {
+  update(x, y, size) {
     this.scaled_x = x;
     this.scaled_y = y;
+
+    this.s = size;
   }
 }
 
