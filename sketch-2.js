@@ -17,11 +17,32 @@ let my_memories = [];
 let dad_memories = [];
 
 function preload() {
+  // i have to manually load all media since they're all different formats.
+  //mine:
   my_memories[0] = createVideo("./assets/media/my-memories/0.mp4");
-  dad_memories[0] = createVideo("./assets/media/dad-memories/0.mp4");
+  my_memories[1] = loadImage("./assets/media/my-memories/1.webp");
+  my_memories[2] = loadImage("./assets/media/my-memories/2.webp");
+  my_memories[3] = createVideo("./assets/media/my-memories/3.mp4");
+  my_memories[4] = loadImage("./assets/media/my-memories/4.webp");
+  my_memories[5] = loadImage("./assets/media/my-memories/5.webp");
+  my_memories[6] = loadImage("./assets/media/my-memories/6.webp");
+  my_memories[7] = createVideo("./assets/media/my-memories/7.mp4");
+  my_memories[8] = createVideo("./assets/media/my-memories/8.mp4");
+  my_memories[9] = loadImage("./assets/media/my-memories/9.webp");
+  my_memories[10] = createVideo("./assets/media/my-memories/10.mp4");
 
-  my_memories[1] = loadImage("./assets/media/my-memories/1.png");
-  dad_memories[1] = loadImage("./assets/media/dad-memories/1.jpg");
+  //dad's:
+  dad_memories[0] = createVideo("./assets/media/dad-memories/0.mp4");
+  dad_memories[1] = loadImage("./assets/media/dad-memories/1.webp");
+  dad_memories[2] = loadImage("./assets/media/dad-memories/2.webp");
+  dad_memories[3] = createVideo("./assets/media/dad-memories/3.mp4");
+  dad_memories[4] = loadImage("./assets/media/dad-memories/4.webp");
+  dad_memories[5] = loadImage("./assets/media/dad-memories/5.webp");
+  dad_memories[6] = loadImage("./assets/media/dad-memories/6.webp");
+  dad_memories[7] = createVideo("./assets/media/dad-memories/7.mp4");
+  dad_memories[8] = createVideo("./assets/media/dad-memories/8.mp4");
+  dad_memories[9] = loadImage("./assets/media/dad-memories/9.webp");
+  dad_memories[10] = createVideo("./assets/media/dad-memories/10.mp4");
 
   // hide *only videos*, not images
   for (let m of my_memories) {
@@ -36,8 +57,6 @@ function setup() {
   //set defaults:
   pixelDensity(1);
   noStroke();
-
-  console.log(my_memories[0], my_memories[1]);
 
   cam = createCapture(VIDEO, canv_to_asp);
   cam.hide();
