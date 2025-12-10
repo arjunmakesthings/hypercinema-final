@@ -194,6 +194,8 @@ function double_check() {
     //if the colour does not match, skip this iteration and move on to the next iteration.
     if (dr > col_difference_threshold || dg > col_difference_threshold || db > col_difference_threshold) {
       //not our colour.
+      units[i].main_file.stop();
+      units[i].hidden_file.stop();
       units.splice(i, 1);
     } else {
       //our colour:
