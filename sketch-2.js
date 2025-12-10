@@ -11,13 +11,9 @@ let my_memories = [];
 let dad_memories = [];
 
 function preload() {
-  my_memories[0] = createVideo("./assets/media/my-memories/0.mp4");
-  dad_memories[0] = createVideo("./assets/media/dad-memories/0.mp4");
-
-  for (let i = 0; i < my_memories.length; i++) {
-    my_memories[i].hide();
-    dad_memories[i].hide();
-  }
+  //we need copies of this for every unit. so we use an array of sources. 
+  my_memories_src = ["./assets/media/my-memories/0.mp4"];
+  dad_memories_src = ["./assets/media/dad-memories/0.mp4"];
 }
 
 function setup() {
@@ -44,8 +40,8 @@ function draw() {
   if (!col_set) {
     set_colour();
   } else {
-    detect();
     image(cam, 0, 0, width, height);
+    detect();
   }
 
   for (unit of units) {
@@ -154,6 +150,7 @@ function detect() {
   // Update units to average positions
   for (let i = 0; i < units.length; i++) {
     if (unit_accumulators[i].count > 0) {
+      units[i].seen = true;
       let avg_x = unit_accumulators[i].sum_x / unit_accumulators[i].count;
       let avg_y = unit_accumulators[i].sum_y / unit_accumulators[i].count;
       let avg_size = Math.sqrt(unit_accumulators[i].count) * 4; 
@@ -166,30 +163,19 @@ function detect() {
 }
 
 function double_check() {
-  for (let i = units.length; i > 0; i--) {
-    //units have a scaled-x and scaled-y. we unscale them first.
-
-    let cam_scale_x = map(units[i].scaled_x, 0, width, 0, cam.width);
-    let cam_scale_y = map(units[i].scaled_y, 0, height, 0, cam.height);
-
-    let cam_pixel_index = get_cam_pixel_index(floor(cam_scale_x), floor(cam_scale_y));
-
-    let pr = cam.pixels[cam_pixel_index];
-    let pg = cam.pixels[cam_pixel_index + 1];
-    let pb = cam.pixels[cam_pixel_index + 2];
-
-    let dr = abs(pr - col_to_detect.r);
-    let dg = abs(pg - col_to_detect.g);
-    let db = abs(pb - col_to_detect.b);
-
-    //if the colour does not match, skip this iteration and move on to the next iteration.
-    if (dr > col_difference_threshold || dg > col_difference_threshold || db > col_difference_threshold) {
-      //not our colour.
+  // remove all units that did not receive any matching pixels this frame
+  for (let i = units.length - 1; i >= 0; i--) {
+    if (!units[i].seen) {
+      units[i].main_file.stop();
+      units[i].hidden_file.stop();
       units.splice(i, 1);
-    } else {
-      //our colour:
-      continue;
+      
     }
+  }
+
+  // reset seen flags for next frame
+  for (let unit of units) {
+    unit.seen = false;
   }
 }
 
@@ -212,15 +198,20 @@ class Unit {
     this.tint_val_main = 0; 
     this.tint_val_hidden = 0; 
 
-    if ((this.brain = 0)) {
-      let n = floor(random(my_memories.length));
-      this.main_file = my_memories[n];
-      this.hidden_file = dad_memories[n];
+    this.seen = false;
+
+    if (this.brain === 0) {
+      let n = floor(random(my_memories_src.length));
+      this.main_file = createVideo(my_memories_src[n]);
+      this.hidden_file = createVideo(dad_memories_src[n]);
     } else {
-      let n = floor(random(my_memories.length));
-      this.main_file = dad_memories[n];
-      this.hidden_file = my_memories[n];
+      let n = floor(random(dad_memories_src.length));
+      this.main_file = createVideo(dad_memories_src[n]);
+      this.hidden_file = createVideo(my_memories_src[n]);
     }
+
+    this.main_file.hide();
+    this.hidden_file.hide();
     this.main_file.loop();
     this.hidden_file.loop();
   }
