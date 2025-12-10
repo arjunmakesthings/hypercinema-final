@@ -1,8 +1,16 @@
+/*
+me, my father & our neurons. 
+
+made for hypercinema-final at itp; december 2025.
+
+by arjun.
+*/
+
 let cam;
 
 let units = [];
 
-let clicked = false;
+let clicked = false; //toggle to keep track of when i change colour.
 
 //memories:
 let my_memories = [];
@@ -42,8 +50,8 @@ function draw() {
   if (!col_set) {
     set_colour();
   } else {
-    detect();
     image(cam, 0, 0, width, height);
+    detect();
   }
 
   for (unit of units) {
@@ -87,7 +95,7 @@ let required_distance = 300; //required distance before a pixel is considered a 
 function detect() {
   cam.loadPixels();
 
-  // Prepare a temporary array to accumulate positions for averaging
+  //for every unit, create a new accumulator object. we use this to keep track of average positions.
   let unit_accumulators = units.map(() => ({ sum_x: 0, sum_y: 0, count: 0 }));
 
   for (let x = 0; x < cam.width; x++) {
@@ -120,13 +128,13 @@ function detect() {
         let d = dist(scaled_x, scaled_y, unit.scaled_x, unit.scaled_y);
 
         if (d < required_distance) {
-          // accumulate positions for averaging
+          //accumulate positions for averaging:
           unit_accumulators[i].sum_x += scaled_x;
           unit_accumulators[i].sum_y += scaled_y;
           unit_accumulators[i].count++;
           this_has_a_unit = true;
 
-          break; // stop checking other units
+          break; //stop checking other units inside this sub-loop. it is already accounted for.
         }
       }
 
@@ -136,20 +144,20 @@ function detect() {
 
         let n = 0; //placeholder for index of memories.
         if (x < cam.width / 2) {
-          //our unit is in the left-half. make it pick from my memories.
+          //our unit is in the left-half. make it pick from my memories (0).
           units.push(new Unit(x, y, 0));
         } else {
-          //in the right half. make it pick from dad's memories.
+          //in the right half. make it pick from dad's memories (1).
           units.push(new Unit(x, y, 1));
         }
 
-        // add new accumulator for averaging
+        //add new accumulator for averaging this pixel's stuff.
         unit_accumulators.push({ sum_x: map(x, 0, cam.width, 0, width), sum_y: map(y, 0, cam.height, 0, height), count: 1 });
       }
     }
   }
 
-  // Update units to average positions
+  // update positions.
   for (let i = 0; i < units.length; i++) {
     if (unit_accumulators[i].count > 0) {
       let avg_x = unit_accumulators[i].sum_x / unit_accumulators[i].count;
