@@ -143,12 +143,13 @@ function detect() {
         //we want to push a new unit with a media file attached to it.
 
         let n = 0; //placeholder for index of memories.
+
         if (x < cam.width / 2) {
           //our unit is in the left-half. make it pick from my memories (0).
-          units.push(new Unit(x, y, 0));
+          units.push(new Unit(x, y, 10, 0));
         } else {
           //in the right half. make it pick from dad's memories (1).
-          units.push(new Unit(x, y, 1));
+          units.push(new Unit(x, y, 10, 1));
         }
 
         //add new accumulator for averaging this pixel's stuff.
@@ -162,7 +163,11 @@ function detect() {
     if (unit_accumulators[i].count > 0) {
       let avg_x = unit_accumulators[i].sum_x / unit_accumulators[i].count;
       let avg_y = unit_accumulators[i].sum_y / unit_accumulators[i].count;
-      units[i].update(avg_x, avg_y);
+
+      //math tells us that area=height=sqrt(area). area for us is the number of pixels in this accumulator object.
+      let avg_size = Math.sqrt(unit_accumulators[i].count)* 4;
+
+      units[i].update(avg_x, avg_y, avg_size);
     }
   }
 
@@ -198,15 +203,14 @@ function double_check() {
 }
 
 class Unit {
-  constructor(x, y, brain) {
+  constructor(x, y, size, brain) {
     this.x = x;
     this.y = y;
 
     this.scaled_x = map(this.x, 0, cam.width, 0, width);
     this.scaled_y = map(this.y, 0, cam.height, 0, height);
 
-    this.w = 100;
-    this.h = 100;
+    this.s = size;
 
     this.brain = brain;
 
@@ -216,7 +220,7 @@ class Unit {
     this.tint_val_main = 0;
     this.tint_val_hidden = 0;
 
-    if ((this.brain = 0)) {
+    if ((this.brain == 0)) {
       let n = floor(random(my_memories.length));
       this.main_file = my_memories[n];
       this.hidden_file = dad_memories[n];
@@ -238,20 +242,22 @@ class Unit {
 
     push();
     tint(255, this.tint_val_main);
-    image(this.main_file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h);
+    image(this.main_file, this.scaled_x - this.s / 2, this.scaled_y - this.s / 2, this.s, this.s);
     pop();
 
     push();
     tint(255, this.tint_val_hidden);
-    image(this.hidden_file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h);
+    image(this.hidden_file, this.scaled_x - this.s / 2, this.scaled_y - this.s / 2, this.s, this.s);
     pop();
 
     // image(this.file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h);
   }
 
-  update(x, y) {
+  update(x, y, size) {
     this.scaled_x = x;
     this.scaled_y = y;
+
+    this.s = size;
   }
 }
 
