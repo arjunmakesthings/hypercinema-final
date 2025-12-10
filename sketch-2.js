@@ -20,9 +20,15 @@ function preload() {
   my_memories[0] = createVideo("./assets/media/my-memories/0.mp4");
   dad_memories[0] = createVideo("./assets/media/dad-memories/0.mp4");
 
-  for (let i = 0; i < my_memories.length; i++) {
-    my_memories[i].hide();
-    dad_memories[i].hide();
+  my_memories[1] = loadImage("./assets/media/my-memories/1.png");
+  dad_memories[1] = loadImage("./assets/media/dad-memories/1.jpg");
+
+  // hide *only videos*, not images
+  for (let m of my_memories) {
+    if (m && m.hide) m.hide();
+  }
+  for (let m of dad_memories) {
+    if (m && m.hide) m.hide();
   }
 }
 
@@ -30,6 +36,8 @@ function setup() {
   //set defaults:
   pixelDensity(1);
   noStroke();
+
+  console.log(my_memories[0], my_memories[1]); 
 
   cam = createCapture(VIDEO, canv_to_asp);
   cam.hide();
@@ -179,6 +187,7 @@ function double_check() {
   // remove all units that did not receive any matching pixels this frame
   for (let i = units.length - 1; i >= 0; i--) {
     if (!units[i].seen) {
+      units[i].destroy();
       units.splice(i, 1);
     }
   }
@@ -209,21 +218,36 @@ class Unit {
 
     this.seen = false;
 
-    // pick a random index for your memory arrays
-    if (this.brain = 0) {
-      let n = floor(random(my_memories.length));
-      this.main_file = my_memories[0];
-      this.hidden_file = dad_memories[0];
-    } else if (this.brain = 1) {
-      let n = floor(random(dad_memories.length));
-      this.main_file = dad_memories[0];
-      this.hidden_file = my_memories[0];
-    }
-    this.main_file.volume(0);
-    this.hidden_file.volume(0);
+    // pick a random index
+    let idx;
 
-    this.main_file.loop();
-    this.hidden_file.loop();
+    if (brain === 0) {
+      idx = floor(random(my_memories.length));
+      this.main_file = my_memories[idx];
+      this.hidden_file = dad_memories[idx];
+    } else {
+      idx = floor(random(dad_memories.length));
+      this.main_file = dad_memories[idx];
+      this.hidden_file = my_memories[idx];
+    }
+
+    // Initialize video-only behavior
+    this.initMedia(this.main_file);
+    this.initMedia(this.hidden_file);
+  }
+
+  initMedia(m) {
+    // if it's a VIDEO
+    if (m && m.loop) {
+      m.volume(0);
+      m.loop();
+    }
+  }
+
+  stopMedia(m) {
+    if (m && m.stop) {
+      m.stop();
+    }
   }
 
   display() {
@@ -242,7 +266,6 @@ class Unit {
     tint(255, this.tint_val_hidden);
     image(this.hidden_file, this.scaled_x - this.s / 2, this.scaled_y - this.s / 2, this.s, this.s);
     pop();
-
   }
 
   update(x, y, size) {
@@ -250,6 +273,11 @@ class Unit {
     this.scaled_y = y;
 
     this.s = size;
+  }
+
+  destroy() {
+    this.stopMedia(this.main_file);
+    this.stopMedia(this.hidden_file);
   }
 }
 
