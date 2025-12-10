@@ -89,7 +89,7 @@ let required_distance = 300; //required distance before a pixel is considered a 
 function detect() {
   cam.loadPixels();
 
-  // Prepare a temporary array to accumulate positions for averaging
+  //for every unit, you create a new temporary object called accumulators.
   let unit_accumulators = units.map(() => ({ sum_x: 0, sum_y: 0, count: 0 }));
 
   for (let x = 0; x < cam.width; x++) {
@@ -156,7 +156,9 @@ function detect() {
     if (unit_accumulators[i].count > 0) {
       let avg_x = unit_accumulators[i].sum_x / unit_accumulators[i].count;
       let avg_y = unit_accumulators[i].sum_y / unit_accumulators[i].count;
-      units[i].update(avg_x, avg_y);
+      let avg_size = Math.sqrt(unit_accumulators[i].count) * 4; 
+      
+      units[i].update(avg_x, avg_y, avg_size);
     }
   }
 
@@ -164,7 +166,7 @@ function detect() {
 }
 
 function double_check() {
-  for (let i = 0; i < units.length; i++) {
+  for (let i = units.length; i > 0; i--) {
     //units have a scaled-x and scaled-y. we unscale them first.
 
     let cam_scale_x = map(units[i].scaled_x, 0, width, 0, cam.width);
@@ -243,9 +245,12 @@ class Unit {
     // image(this.file, this.scaled_x - this.w / 2, this.scaled_y - this.h / 2, this.w, this.h);
   }
 
-  update(x, y) {
+  update(x, y, size) {
     this.scaled_x = x;
     this.scaled_y = y;
+
+    this.w = size;
+    this.h = size;
   }
 }
 
