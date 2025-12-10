@@ -37,7 +37,7 @@ function setup() {
   pixelDensity(1);
   noStroke();
 
-  console.log(my_memories[0], my_memories[1]); 
+  console.log(my_memories[0], my_memories[1]);
 
   cam = createCapture(VIDEO, canv_to_asp);
   cam.hide();
@@ -98,7 +98,7 @@ function set_colour() {
 
 let col_difference_threshold = 30; //this number is used to account for noise that the webcam will experience.
 
-let required_distance = 300; //required distance before a pixel is considered a new unit.
+let required_distance = 200; //required distance before a pixel is considered a new unit.
 
 function detect() {
   cam.loadPixels();
@@ -154,10 +154,10 @@ function detect() {
 
         if (x < cam.width / 2) {
           //our unit is in the left-half. make it pick from my memories (0).
-          units.push(new Unit(x, y, 10, 0));
+          units.push(new Unit(x, y, 50, 0));
         } else {
           //in the right half. make it pick from dad's memories (1).
-          units.push(new Unit(x, y, 10, 1));
+          units.push(new Unit(x, y, 50, 1));
         }
 
         //add new accumulator for averaging this pixel's stuff.
@@ -175,7 +175,6 @@ function detect() {
 
       //math tells us that area=height=sqrt(area). area for us is the number of pixels in this accumulator object.
       let avg_size = Math.sqrt(unit_accumulators[i].count) * 4;
-
       units[i].update(avg_x, avg_y, avg_size);
     }
   }
@@ -221,7 +220,7 @@ class Unit {
     // pick a random index
     let idx;
 
-    if (brain === 0) {
+    if ((brain = 0)) {
       idx = floor(random(my_memories.length));
       this.main_file = my_memories[idx];
       this.hidden_file = dad_memories[idx];
