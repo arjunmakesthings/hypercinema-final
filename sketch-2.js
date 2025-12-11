@@ -84,6 +84,23 @@ function draw() {
   for (unit of units) {
     unit.display();
   }
+
+  //connections between points: 
+
+  stroke(255, 80); // light white, slightly transparent
+  strokeWeight(1);
+
+  for (let i = 0; i < units.length; i++) {
+    for (let j = i + 1; j < units.length; j++) {
+      let a = units[i];
+      let b = units[j];
+
+      // same memory index AND different brain sides
+      if (a.memory_index === b.memory_index && a.brain !== b.brain) {
+        line(a.scaled_x+a.s/2, a.scaled_y+a.s/2, b.scaled_x-b.s/2, b.scaled_y-b.s/2);
+      }
+    }
+  }
 }
 
 let col_to_detect = {
@@ -238,7 +255,7 @@ class Unit {
 
     // pick a random index
     let idx;
-
+    
     if ((brain = 0)) {
       idx = floor(random(my_memories.length));
       this.main_file = my_memories[idx];
@@ -248,6 +265,8 @@ class Unit {
       this.main_file = dad_memories[idx];
       this.hidden_file = my_memories[idx];
     }
+
+    this.memory_index = idx;
 
     // Initialize video-only behavior
     this.initMedia(this.main_file);
@@ -275,7 +294,11 @@ class Unit {
     this.tint_val_main = map(this.scaled_x, 0, width, 0, 255);
     this.tint_val_hidden = map(this.scaled_x, 0, width, 255, 0);
 
+    // fill(0);
+    // square(this.scaled_x - this.s / 2, this.scaled_y - this.s / 2, this.s); 
+
     push();
+    //background to remove tint.
     tint(255, this.tint_val_main);
     image(this.main_file, this.scaled_x - this.s / 2, this.scaled_y - this.s / 2, this.s, this.s);
     pop();
