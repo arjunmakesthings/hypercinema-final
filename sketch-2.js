@@ -77,7 +77,7 @@ function draw() {
   if (!col_set) {
     set_colour();
   } else {
-    image(cam, 0, 0, width, height);
+    //image(cam, 0, 0, width, height);
     detect();
   }
 
