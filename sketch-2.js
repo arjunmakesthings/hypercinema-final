@@ -166,7 +166,7 @@ function calculate_consensus() {
 
   consensus = avgScore > 0.5 ? "reach out" : "let go";
 
-  console.log("connections:", count, "avgRaw:", avgRaw.toFixed(4), "avgScore:", avgScore.toFixed(4));
+  // console.log("connections:", count, "avgRaw:", avgRaw.toFixed(4), "avgScore:", avgScore.toFixed(4));
 }
 
 
@@ -377,14 +377,11 @@ class Unit {
     if ((brain = 0)) {
       idx = floor(random(my_memories.length));
 
-      idx = 1; 
-
       this.main_file = my_memories[idx];
       this.hidden_file = dad_memories[idx];
     } else {
       idx = floor(random(dad_memories.length));
 
-      idx = 1;
       this.main_file = dad_memories[idx];
       this.hidden_file = my_memories[idx];
     }
