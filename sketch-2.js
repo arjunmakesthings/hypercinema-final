@@ -23,6 +23,11 @@ let reg, sem;
 let total_memories_accessed = 0;
 let consensus = "don't reach out";
 
+let s_elapsed = 0;
+
+let lastConsensusTime = 0; // millis() of last consensus calculation
+let consensusInterval = 180000; // 3 minutes in milliseconds
+
 function preload() {
   // i have to manually load all media since they're all different formats.
   //mine:
@@ -115,12 +120,51 @@ function draw() {
 
   ui();
 
-  calculate_consensus();
+  if (millis() - lastConsensusTime > consensusInterval) {
+    calculate_consensus();
+    lastConsensusTime = millis();
+  }
+}
+
+function calculate_consensus() {
+  function calculate_consensus() {
+    if (units.length < 2) {
+      consensus = "let go";
+      return;
+    }
+
+    let totalScore = 0;
+    let count = 0;
+
+    // iterate over all pairs of units
+    for (let i = 0; i < units.length; i++) {
+      for (let j = i + 1; j < units.length; j++) {
+        let a = units[i];
+        let b = units[j];
+
+        // calculate distance between units
+        let d = dist(a.scaled_x, a.scaled_y, b.scaled_x, b.scaled_y);
+
+        // map distance to score: closer = higher
+        // let's say required_distance is the max distance for full score
+        let score = constrain(1 - d / required_distance, 0, 1);
+
+        totalScore += score;
+        count++;
+      }
+    }
+
+    // average score between all pairs
+    let avgScore = totalScore / count;
+
+    // set consensus based on threshold
+    consensus = avgScore > 0.5 ? "reach out" : "let go";
+  }
 }
 
 function ui() {
   push();
-  fill(255);
+
   textAlign(CENTER);
   textSize(14);
   fill(127);
@@ -145,13 +189,21 @@ function ui() {
   textAlign(RIGHT, CENTER);
   text("loc: unknown", width - 100, height / 2 + 16 - 200);
 
-  textAlign(RIGHT, TOP);
+  textAlign(LEFT, TOP);
 
   textFont(reg);
   textSize(8);
-  text("total memories accessed during the show: " + total_memories_accessed, width - 100, 50);
+  text("total memories accessed during the show: " + total_memories_accessed, 100, 50);
 
-  text("winter show attendees consensus: " + consensus, width - 100, 62);
+  text("winter show attendees consensus: " + consensus,100, 62);
+
+  fill(127);
+  textAlign(RIGHT, TOP);
+  textSize(8);
+  textFont(reg);
+
+  let timeLeft = ceil((consensusInterval - (millis() - lastConsensusTime)) / 1000);
+  text("next data-snapshot in: " + timeLeft + "s", width-100, 50);
 
   pop();
 }
