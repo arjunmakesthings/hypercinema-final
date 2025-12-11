@@ -26,7 +26,7 @@ let consensus = "don't reach out";
 let s_elapsed = 0;
 
 let lastConsensusTime = 0; // millis() of last consensus calculation
-let consensusInterval = 180000; // 3 minutes in milliseconds
+let consensusInterval = 3000; // 3 minutes in milliseconds
 
 function preload() {
   // i have to manually load all media since they're all different formats.
@@ -93,7 +93,7 @@ function draw() {
   if (!col_set) {
     set_colour();
   } else {
-    //image(cam, 0, 0, width, height);
+    // image(cam, 0, 0, width, height);
     detect();
   }
 
@@ -126,41 +126,51 @@ function draw() {
   }
 }
 
+// ===== Option B: ONLY DRAWN CONNECTIONS (same memory_index && different brain) =====
 function calculate_consensus() {
-  function calculate_consensus() {
-    if (units.length < 2) {
-      consensus = "let go";
-      return;
-    }
-
-    let totalScore = 0;
-    let count = 0;
-
-    // iterate over all pairs of units
-    for (let i = 0; i < units.length; i++) {
-      for (let j = i + 1; j < units.length; j++) {
-        let a = units[i];
-        let b = units[j];
-
-        // calculate distance between units
-        let d = dist(a.scaled_x, a.scaled_y, b.scaled_x, b.scaled_y);
-
-        // map distance to score: closer = higher
-        // let's say required_distance is the max distance for full score
-        let score = constrain(1 - d / required_distance, 0, 1);
-
-        totalScore += score;
-        count++;
-      }
-    }
-
-    // average score between all pairs
-    let avgScore = totalScore / count;
-
-    // set consensus based on threshold
-    consensus = avgScore > 0.5 ? "reach out" : "let go";
+  if (units.length < 2) {
+    // consensus = "not enough data";
+    return;
   }
+
+  let totalScore = 0;
+  let count = 0;
+
+  // use canvas diagonal again so metric adapts
+  let diag = dist(0, 0, width, height);
+  let neutralDistance = diag / 3; // tweak if needed
+
+  for (let i = 0; i < units.length; i++) {
+    for (let j = i + 1; j < units.length; j++) {
+      let a = units[i];
+      let b = units[j];
+
+      // only consider pairs that actually form a connection in your visuals
+      if (!(a.memory_index === b.memory_index && a.brain !== b.brain)) continue;
+
+      let d = dist(a.scaled_x, a.scaled_y, b.scaled_x, b.scaled_y);
+
+      // positive when close, negative when far
+      let raw = (neutralDistance - d) / neutralDistance;
+
+      // clamp a bit to avoid huge influence from outliers
+      raw = constrain(raw, -1, 1);
+
+      totalScore += raw;
+      count++;
+    }
+  }
+
+  let avgRaw = count > 0 ? totalScore / count : 0; // in [-1,1]
+  let avgScore = (avgRaw + 1) / 2; // map to 0..1
+
+  consensus = avgScore > 0.5 ? "reach out" : "let go";
+
+  console.log("connections:", count, "avgRaw:", avgRaw.toFixed(4), "avgScore:", avgScore.toFixed(4));
 }
+
+
+
 
 function ui() {
   push();
@@ -195,7 +205,7 @@ function ui() {
   textSize(8);
   text("total memories accessed during the show: " + total_memories_accessed, 100, 50);
 
-  text("winter show attendees consensus: " + consensus,100, 62);
+  text("winter show attendees consensus: " + consensus, 100, 62);
 
   fill(127);
   textAlign(RIGHT, TOP);
@@ -203,7 +213,7 @@ function ui() {
   textFont(reg);
 
   let timeLeft = ceil((consensusInterval - (millis() - lastConsensusTime)) / 1000);
-  text("next data-snapshot in: " + timeLeft + "s", width-100, 50);
+  text("next data-snapshot in: " + timeLeft + "s", width - 100, 50);
 
   pop();
 }
@@ -366,10 +376,15 @@ class Unit {
 
     if ((brain = 0)) {
       idx = floor(random(my_memories.length));
+
+      idx = 1; 
+
       this.main_file = my_memories[idx];
       this.hidden_file = dad_memories[idx];
     } else {
       idx = floor(random(dad_memories.length));
+
+      idx = 1;
       this.main_file = dad_memories[idx];
       this.hidden_file = my_memories[idx];
     }
