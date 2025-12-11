@@ -88,10 +88,6 @@ function draw() {
     detect();
   }
 
-  for (unit of units) {
-    unit.display();
-  }
-
   //connections between points:
 
   stroke(255, 80); // light white, slightly transparent
@@ -104,9 +100,13 @@ function draw() {
 
       // same memory index AND different brain sides
       if (a.memory_index === b.memory_index && a.brain !== b.brain) {
-        line(a.scaled_x + a.s / 2, a.scaled_y + a.s / 2, b.scaled_x - b.s / 2, b.scaled_y - b.s / 2);
+        line(a.scaled_x + a.s / 2, a.scaled_y , b.scaled_x - b.s / 2, b.scaled_y);
       }
     }
+  }
+
+  for (unit of units) {
+    unit.display();
   }
 
   ui();
@@ -117,22 +117,22 @@ function ui() {
   fill(255);
   textAlign(CENTER);
   textSize(14);
-  fill (127); 
-  textFont (reg); 
+  fill(127);
+  textFont(reg);
   text("me, my father & our neurons", width / 2, height - 450);
 
-  fill(255); 
-  textFont (semi); 
+  fill(255);
+  textFont(semi);
   textAlign(LEFT, CENTER);
   text("me", 100, height / 2 - 200);
 
   textAlign(RIGHT, CENTER);
   text("my father", width - 100, height / 2 - 200);
 
-  fill(127); 
+  fill(127);
 
-  textFont(reg); 
-  textSize (8); 
+  textFont(reg);
+  textSize(8);
   textAlign(LEFT, CENTER);
   text("loc: 40.6908107°N, 73.9585043°W ", 100, height / 2 + 16 - 200);
 
