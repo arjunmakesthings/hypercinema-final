@@ -25,7 +25,7 @@ let consensus = "don't reach out";
 
 let s_elapsed = 0;
 
-let lastConsensusTime = 0; // millis() of last consensus calculation
+let lastConsensusTime = 0; // millis() of last consensus calculation. 
 let consensusInterval = 180000;
 
 function preload() {
