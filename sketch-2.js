@@ -26,7 +26,7 @@ let consensus = "don't reach out";
 let s_elapsed = 0;
 
 let lastConsensusTime = 0; // millis() of last consensus calculation
-let consensusInterval = 3000; // 3 minutes in milliseconds
+let consensusInterval = 180000;
 
 function preload() {
   // i have to manually load all media since they're all different formats.
@@ -168,9 +168,6 @@ function calculate_consensus() {
 
   // console.log("connections:", count, "avgRaw:", avgRaw.toFixed(4), "avgScore:", avgScore.toFixed(4));
 }
-
-
-
 
 function ui() {
   push();
