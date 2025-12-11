@@ -19,6 +19,10 @@ let dad_memories = [];
 //font loads:
 let reg, sem;
 
+//data variables:
+let total_memories_accessed = 0;
+let consensus = "don't reach out";
+
 function preload() {
   // i have to manually load all media since they're all different formats.
   //mine:
@@ -100,7 +104,7 @@ function draw() {
 
       // same memory index AND different brain sides
       if (a.memory_index === b.memory_index && a.brain !== b.brain) {
-        line(a.scaled_x + a.s / 2, a.scaled_y , b.scaled_x - b.s / 2, b.scaled_y);
+        line(a.scaled_x + a.s / 2, a.scaled_y, b.scaled_x - b.s / 2, b.scaled_y);
       }
     }
   }
@@ -110,6 +114,8 @@ function draw() {
   }
 
   ui();
+
+  calculate_consensus();
 }
 
 function ui() {
@@ -138,6 +144,14 @@ function ui() {
 
   textAlign(RIGHT, CENTER);
   text("loc: unknown", width - 100, height / 2 + 16 - 200);
+
+  textAlign(RIGHT, TOP);
+
+  textFont(reg);
+  textSize(8);
+  text("total memories accessed during the show: " + total_memories_accessed, width - 100, 50);
+
+  text("winter show attendees consensus: " + consensus, width - 100, 62);
 
   pop();
 }
@@ -237,6 +251,9 @@ function detect() {
 
         //add new accumulator for averaging this pixel's stuff.
         unit_accumulators.push({ sum_x: map(x, 0, cam.width, 0, width), sum_y: map(y, 0, cam.height, 0, height), count: 1 });
+
+        //increase count of total memories accessed.
+        total_memories_accessed += 1;
       }
     }
   }
