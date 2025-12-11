@@ -16,6 +16,9 @@ let clicked = false; //toggle to keep track of when i change colour.
 let my_memories = [];
 let dad_memories = [];
 
+//font loads:
+let reg, sem;
+
 function preload() {
   // i have to manually load all media since they're all different formats.
   //mine:
@@ -51,6 +54,10 @@ function preload() {
   for (let m of dad_memories) {
     if (m && m.hide) m.hide();
   }
+
+  //font loads:
+  reg = loadFont("/assets/fonts/FiraCode-Regular.ttf");
+  semi = loadFont("/assets/fonts/FiraCode-SemiBold.ttf");
 }
 
 function setup() {
@@ -85,7 +92,7 @@ function draw() {
     unit.display();
   }
 
-  //connections between points: 
+  //connections between points:
 
   stroke(255, 80); // light white, slightly transparent
   strokeWeight(1);
@@ -97,10 +104,42 @@ function draw() {
 
       // same memory index AND different brain sides
       if (a.memory_index === b.memory_index && a.brain !== b.brain) {
-        line(a.scaled_x+a.s/2, a.scaled_y+a.s/2, b.scaled_x-b.s/2, b.scaled_y-b.s/2);
+        line(a.scaled_x + a.s / 2, a.scaled_y + a.s / 2, b.scaled_x - b.s / 2, b.scaled_y - b.s / 2);
       }
     }
   }
+
+  ui();
+}
+
+function ui() {
+  push();
+  fill(255);
+  textAlign(CENTER);
+  textSize(14);
+  fill (127); 
+  textFont (reg); 
+  text("me, my father & our neurons", width / 2, height - 450);
+
+  fill(255); 
+  textFont (semi); 
+  textAlign(LEFT, CENTER);
+  text("me", 100, height / 2 - 200);
+
+  textAlign(RIGHT, CENTER);
+  text("my father", width - 100, height / 2 - 200);
+
+  fill(127); 
+
+  textFont(reg); 
+  textSize (8); 
+  textAlign(LEFT, CENTER);
+  text("loc: 40.6908107°N, 73.9585043°W ", 100, height / 2 + 16 - 200);
+
+  textAlign(RIGHT, CENTER);
+  text("loc: unknown", width - 100, height / 2 + 16 - 200);
+
+  pop();
 }
 
 let col_to_detect = {
@@ -210,7 +249,7 @@ function detect() {
       let avg_y = unit_accumulators[i].sum_y / unit_accumulators[i].count;
 
       //math tells us that area=height=sqrt(area). area for us is the number of pixels in this accumulator object.
-      let avg_size = Math.sqrt(unit_accumulators[i].count) * 6;
+      let avg_size = Math.sqrt(unit_accumulators[i].count) * 8;
       units[i].update(avg_x, avg_y, avg_size);
     }
   }
@@ -255,7 +294,7 @@ class Unit {
 
     // pick a random index
     let idx;
-    
+
     if ((brain = 0)) {
       idx = floor(random(my_memories.length));
       this.main_file = my_memories[idx];
@@ -295,7 +334,7 @@ class Unit {
     this.tint_val_hidden = map(this.scaled_x, 0, width, 255, 0);
 
     // fill(0);
-    // square(this.scaled_x - this.s / 2, this.scaled_y - this.s / 2, this.s); 
+    // square(this.scaled_x - this.s / 2, this.scaled_y - this.s / 2, this.s);
 
     push();
     //background to remove tint.
