@@ -330,7 +330,7 @@ function detect() {
       let avg_y = unit_accumulators[i].sum_y / unit_accumulators[i].count;
 
       //math tells us that area=height=sqrt(area). area for us is the number of pixels in this accumulator object.
-      let avg_size = Math.sqrt(unit_accumulators[i].count) * 11;
+      let avg_size = Math.sqrt(unit_accumulators[i].count) * 12;
       units[i].update(avg_x, avg_y, avg_size);
     }
   }
@@ -413,9 +413,9 @@ class Unit {
     // fill(255);
     // rect(this.scaled_x, this.scaled_y, this.w, this.h);
 
-    fill (0); 
-    noStroke();
-    square (this.scaled_x-this.s/2, this.scaled_y-this.s/2, this.s); 
+    // fill (0); 
+    // noStroke();
+    // square (this.scaled_x-this.s/2, this.scaled_y-this.s/2, this.s); 
 
     this.tint_val_main = map(this.scaled_x, 0, width, 0, 255);
     this.tint_val_hidden = map(this.scaled_x, 0, width, 255, 0);
