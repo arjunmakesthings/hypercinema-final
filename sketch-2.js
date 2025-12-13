@@ -89,6 +89,9 @@ function canv_to_asp() {
 function draw() {
   background(0);
 
+
+  ui();
+
   //i wanted to use a tertiary operator, but it just works differently and causes an error in my program.
   if (!col_set) {
     set_colour();
@@ -118,7 +121,6 @@ function draw() {
     unit.display();
   }
 
-  ui();
 
   if (millis() - lastConsensusTime > consensusInterval) {
     calculate_consensus();
