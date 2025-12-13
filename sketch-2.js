@@ -92,34 +92,35 @@ function canv_to_asp() {
 function draw() {
   background(0);
 
-  // //i wanted to use a tertiary operator, but it just works differently and causes an error in my program.
-  // if (!col_set) {
-  //   set_colour();
-  // } else {
-  //   // image(cam, 0, 0, width, height);
-  //   detect();
-  // }
+  //i wanted to use a tertiary operator, but it just works differently and causes an error in my program.
+  if (!col_set) {
+    set_colour();
+  } else {
+    // image(cam, 0, 0, width, height);
+    detect();
+    noCursor(); 
+  }
 
-  // //connections between points:
+  //connections between points:
 
-  // stroke(255, 80); // light white, slightly transparent
-  // strokeWeight(1);
+  stroke(255, 80); // light white, slightly transparent
+  strokeWeight(1);
 
-  // for (let i = 0; i < units.length; i++) {
-  //   for (let j = i + 1; j < units.length; j++) {
-  //     let a = units[i];
-  //     let b = units[j];
+  for (let i = 0; i < units.length; i++) {
+    for (let j = i + 1; j < units.length; j++) {
+      let a = units[i];
+      let b = units[j];
 
-  //     // same memory index AND different brain sides
-  //     if (a.memory_index === b.memory_index && a.brain !== b.brain) {
-  //       line(a.scaled_x + a.s / 2, a.scaled_y, b.scaled_x - b.s / 2, b.scaled_y);
-  //     }
-  //   }
-  // }
+      // same memory index AND different brain sides
+      if (a.memory_index === b.memory_index && a.brain !== b.brain) {
+        line(a.scaled_x + a.s / 2, a.scaled_y, b.scaled_x - b.s / 2, b.scaled_y);
+      }
+    }
+  }
 
-  // for (unit of units) {
-  //   unit.display();
-  // }
+  for (unit of units) {
+    unit.display();
+  }
 
   ui();
 
