@@ -329,7 +329,7 @@ function detect() {
       let avg_y = unit_accumulators[i].sum_y / unit_accumulators[i].count;
 
       //math tells us that area=height=sqrt(area). area for us is the number of pixels in this accumulator object.
-      let avg_size = Math.sqrt(unit_accumulators[i].count) * 8;
+      let avg_size = Math.sqrt(unit_accumulators[i].count) * 12;
       units[i].update(avg_x, avg_y, avg_size);
     }
   }
