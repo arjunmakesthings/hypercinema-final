@@ -28,6 +28,9 @@ let s_elapsed = 0;
 let lastConsensusTime = 0; // millis() of last consensus calculation. 
 let consensusInterval = 180000;
 
+let sm_size = 14; 
+let lg_size = 28;
+
 function preload() {
   // i have to manually load all media since they're all different formats.
   //mine:
@@ -89,34 +92,34 @@ function canv_to_asp() {
 function draw() {
   background(0);
 
-  //i wanted to use a tertiary operator, but it just works differently and causes an error in my program.
-  if (!col_set) {
-    set_colour();
-  } else {
-    // image(cam, 0, 0, width, height);
-    detect();
-  }
+  // //i wanted to use a tertiary operator, but it just works differently and causes an error in my program.
+  // if (!col_set) {
+  //   set_colour();
+  // } else {
+  //   // image(cam, 0, 0, width, height);
+  //   detect();
+  // }
 
-  //connections between points:
+  // //connections between points:
 
-  stroke(255, 80); // light white, slightly transparent
-  strokeWeight(1);
+  // stroke(255, 80); // light white, slightly transparent
+  // strokeWeight(1);
 
-  for (let i = 0; i < units.length; i++) {
-    for (let j = i + 1; j < units.length; j++) {
-      let a = units[i];
-      let b = units[j];
+  // for (let i = 0; i < units.length; i++) {
+  //   for (let j = i + 1; j < units.length; j++) {
+  //     let a = units[i];
+  //     let b = units[j];
 
-      // same memory index AND different brain sides
-      if (a.memory_index === b.memory_index && a.brain !== b.brain) {
-        line(a.scaled_x + a.s / 2, a.scaled_y, b.scaled_x - b.s / 2, b.scaled_y);
-      }
-    }
-  }
+  //     // same memory index AND different brain sides
+  //     if (a.memory_index === b.memory_index && a.brain !== b.brain) {
+  //       line(a.scaled_x + a.s / 2, a.scaled_y, b.scaled_x - b.s / 2, b.scaled_y);
+  //     }
+  //   }
+  // }
 
-  for (unit of units) {
-    unit.display();
-  }
+  // for (unit of units) {
+  //   unit.display();
+  // }
 
   ui();
 
@@ -173,40 +176,40 @@ function ui() {
   push();
 
   textAlign(CENTER);
-  textSize(14);
+  textSize(lg_size);
   fill(127);
   textFont(reg);
-  text("me, my father & our neurons", width / 2, height - 450);
+  text("me, my father & our neurons", width / 2, height - 600);
 
   fill(255);
   textFont(semi);
   textAlign(LEFT, CENTER);
-  text("me", 100, height / 2 - 200);
+  text("me", 100, height / 2 - 285);
 
   textAlign(RIGHT, CENTER);
-  text("my father", width - 100, height / 2 - 200);
+  text("my father", width - 100, height / 2 - 285);
 
   fill(127);
 
   textFont(reg);
-  textSize(8);
+  textSize(sm_size);
   textAlign(LEFT, CENTER);
-  text("loc: 40.6908107°N, 73.9585043°W ", 100, height / 2 + 16 - 200);
+  text("loc: 40.6908107°N, 73.9585043°W ", 100, height / 2 + sm_size*2 - 285);
 
   textAlign(RIGHT, CENTER);
-  text("loc: unknown", width - 100, height / 2 + 16 - 200);
+  text("loc: unknown", width - 100, height / 2 + sm_size*2 - 285);
 
   textAlign(LEFT, TOP);
 
   textFont(reg);
-  textSize(8);
+  textSize(sm_size);
   text("total memories accessed during the show: " + total_memories_accessed, 100, 50);
 
-  text("winter show attendees consensus: " + consensus, 100, 62);
+  text("winter show attendees consensus: " + consensus, 100, 50+sm_size*1.5);
 
   fill(127);
   textAlign(RIGHT, TOP);
-  textSize(8);
+  textSize(sm_size);
   textFont(reg);
 
   let timeLeft = ceil((consensusInterval - (millis() - lastConsensusTime)) / 1000);
