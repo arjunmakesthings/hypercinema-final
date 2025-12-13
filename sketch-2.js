@@ -413,6 +413,10 @@ class Unit {
     // fill(255);
     // rect(this.scaled_x, this.scaled_y, this.w, this.h);
 
+    fill (0); 
+    noStroke();
+    square (this.scaled_x-this.s/2, this.scaled_y-this.s/2, this.s); 
+
     this.tint_val_main = map(this.scaled_x, 0, width, 0, 255);
     this.tint_val_hidden = map(this.scaled_x, 0, width, 255, 0);
 
