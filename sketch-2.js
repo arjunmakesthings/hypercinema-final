@@ -180,25 +180,25 @@ function ui() {
   textSize(lg_size);
   fill(127);
   textFont(reg);
-  text("me, my father & our neurons", width / 2, height - 600);
+  text("me, my father & our neurons", width / 2, height - 480);
 
   fill(255);
   textFont(semi);
   textAlign(LEFT, CENTER);
-  text("me", 100, height / 2 - 285);
+  text("me", 100, height / 2 - 200);
 
   textAlign(RIGHT, CENTER);
-  text("my father", width - 100, height / 2 - 285);
+  text("my father", width - 100, height / 2 - 200);
 
   fill(127);
 
   textFont(reg);
   textSize(sm_size);
   textAlign(LEFT, CENTER);
-  text("loc: 40.6908107°N, 73.9585043°W ", 100, height / 2 + sm_size*2 - 285);
+  text("loc: 40.6908107°N, 73.9585043°W ", 100, height / 2 + sm_size*2 - 200);
 
   textAlign(RIGHT, CENTER);
-  text("loc: unknown", width - 100, height / 2 + sm_size*2 - 285);
+  text("loc: unknown", width - 100, height / 2 + sm_size*2 - 200);
 
   textAlign(LEFT, TOP);
 
@@ -329,7 +329,7 @@ function detect() {
       let avg_y = unit_accumulators[i].sum_y / unit_accumulators[i].count;
 
       //math tells us that area=height=sqrt(area). area for us is the number of pixels in this accumulator object.
-      let avg_size = Math.sqrt(unit_accumulators[i].count) * 12;
+      let avg_size = Math.sqrt(unit_accumulators[i].count) * 11;
       units[i].update(avg_x, avg_y, avg_size);
     }
   }
