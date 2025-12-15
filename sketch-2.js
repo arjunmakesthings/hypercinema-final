@@ -20,8 +20,8 @@ let dad_memories = [];
 let reg, sem;
 
 //data variables:
-let total_memories_accessed = 0;
-let consensus = "don't reach out";
+let total_memories_accessed = 5723;
+let consensus = "let go";
 
 let s_elapsed = 0;
 
