@@ -68,8 +68,8 @@ function preload() {
   }
 
   //font loads:
-  reg = loadFont("/assets/fonts/FiraCode-Regular.ttf");
-  semi = loadFont("/assets/fonts/FiraCode-SemiBold.ttf");
+  reg = loadFont("./assets/fonts/FiraCode-Regular.ttf");
+  semi = loadFont("./assets/fonts/FiraCode-SemiBold.ttf");
 }
 
 function setup() {
